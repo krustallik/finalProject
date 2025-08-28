@@ -2,6 +2,7 @@ import * as React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTheme } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 import CalendarScreen from '../screens/CalendarScreen';
 import MapScreen from '../screens/MapScreen';
@@ -11,6 +12,7 @@ const Tab = createBottomTabNavigator();
 
 export default function Tabs() {
     const { colors } = useTheme();
+    const { t } = useTranslation();
 
     return (
         <Tab.Navigator
@@ -26,9 +28,21 @@ export default function Tabs() {
                 },
             })}
         >
-            <Tab.Screen name="Календар" component={CalendarScreen} options={{ headerShown: false }} />
-            <Tab.Screen name="Карта"    component={MapScreen} options={{ headerShown: false }} />
-            <Tab.Screen name="Створити" component={CreateOffenseScreen} options={{ headerShown: false }} />
+            <Tab.Screen
+                name="Календар"
+                component={CalendarScreen}
+                options={{ headerShown: false, tabBarLabel: t('tabs.calendar') }}
+            />
+            <Tab.Screen
+                name="Карта"
+                component={MapScreen}
+                options={{ headerShown: false, tabBarLabel: t('tabs.map') }}
+            />
+            <Tab.Screen
+                name="Створити"
+                component={CreateOffenseScreen}
+                options={{ headerShown: false, tabBarLabel: t('tabs.create') }}
+            />
         </Tab.Navigator>
     );
 }

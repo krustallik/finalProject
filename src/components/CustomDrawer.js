@@ -3,13 +3,16 @@ import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawe
 import { View, Text, Switch, TouchableOpacity, StyleSheet } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import { ThemeCtx } from '../theme/ThemeProvider';
+import {useTranslation} from "react-i18next";
+import {LangCtx} from "../i18n/LanguageProvider";
 
 export default function CustomDrawer(props) {
-    const { colors } = useTheme();               // 🎯 кольори з активної теми
+    const { colors } = useTheme();
+    const { t } = useTranslation();// 🎯 кольори з активної теми
     const { themeName, toggleTheme } = useContext(ThemeCtx);
 
     const [langOpen, setLangOpen] = useState(false);
-    const [lang, setLang] = useState('uk');
+    const { lang, setLang } = useContext(LangCtx);
 
     const s = makeStyles(colors);
 
@@ -22,7 +25,7 @@ export default function CustomDrawer(props) {
 
             {/* тема */}
             <View style={s.rowBetween}>
-                <Text style={s.label}>Темна тема</Text>
+                <Text style={s.label}>{t('drawer.themeDark')}</Text>
                 <Switch
                     value={themeName === 'dark'}
                     onValueChange={toggleTheme}
@@ -35,7 +38,7 @@ export default function CustomDrawer(props) {
             <View style={s.langBlock}>
                 <TouchableOpacity onPress={() => setLangOpen(v => !v)} style={s.langHeader}>
                     <Text style={s.label}>
-                        Мова: {lang === 'uk' ? 'Українська' : 'English'} {langOpen ? '▲' : '▼'}
+                        {t('drawer.lang')}: {lang === 'uk' ? 'Українська' : 'English'} {langOpen ? '▲' : '▼'}
                     </Text>
                 </TouchableOpacity>
 
@@ -65,7 +68,7 @@ export default function CustomDrawer(props) {
             {/* Вихід */}
             <View style={s.logoutWrap}>
                 <TouchableOpacity onPress={() => {}} style={s.logoutBtn}>
-                    <Text style={s.logoutText}>Вихід</Text>
+                    <Text style={s.logoutText}>{t('drawer.logout')}</Text>
                 </TouchableOpacity>
             </View>
         </DrawerContentScrollView>
