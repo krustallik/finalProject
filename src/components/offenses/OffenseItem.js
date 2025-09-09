@@ -16,19 +16,23 @@ export default function OffenseItem({ item, onDelete }) {
                 </TouchableOpacity>
             </View>
 
-            {!!item.image_base64 && (
+            {!!(item.image_base64 || item.photo_url) && (
                 <Image
-                    source={{ uri: `data:image/jpeg;base64,${item.image_base64}` }}
+                    source={{
+                        uri: item.image_base64
+                            ? `data:image/jpeg;base64,${item.image_base64}`
+                            : item.photo_url,
+                    }}
                     style={s.image}
                     resizeMode="cover"
                 />
             )}
 
+
             <Text style={s.title}>{item.description}</Text>
 
             {!!item.category && (
                 <Text style={s.category}>
-                    {/* Для i18n можна додати ключ offense.categoryLabel */}
                     Категорія: {item.category}
                 </Text>
             )}

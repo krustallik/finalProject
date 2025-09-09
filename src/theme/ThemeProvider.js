@@ -13,7 +13,6 @@ const STORAGE_KEY = 'app.theme';
 export default function ThemeProvider({ children }) {
     const [themeName, setThemeName] = useState('light');
 
-    // завантажити збережену тему
     useEffect(() => {
         (async () => {
             const saved = await AsyncStorage.getItem(STORAGE_KEY);
@@ -23,10 +22,8 @@ export default function ThemeProvider({ children }) {
         })();
     }, []);
 
-    // поточна тема
     const navTheme = themeName === 'dark' ? NavDark : NavLight;
 
-    // перемикач теми
     const toggleTheme = async () => {
         const next = themeName === 'light' ? 'dark' : 'light';
         setThemeName(next);
