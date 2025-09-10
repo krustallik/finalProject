@@ -40,6 +40,11 @@ export default function OffenseItem({ item, onDelete }) {
             <Text style={s.date}>
                 {new Date(item.created_at).toLocaleString()}
             </Text>
+            {(item.latitude != null && item.longitude != null) && (
+                <Text style={s.coords}>
+                    {item.latitude.toFixed(5)}, {item.longitude.toFixed(5)}
+                </Text>
+            )}
         </View>
     );
 }
@@ -72,4 +77,5 @@ const makeStyles = (colors) =>
         title: { color: colors.text, fontSize: 16, fontWeight: '600' },
         category: { color: colors.text, opacity: 0.7, marginTop: 2 },
         date: { color: colors.text, opacity: 0.6, marginTop: 2 },
+        coords: { color: colors.text, opacity: 0.6, marginTop: 2 },
     });
