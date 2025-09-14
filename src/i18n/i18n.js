@@ -34,6 +34,8 @@ const resources = {
                 registerBtn: 'Зареєструватися',
                 noAccount: 'Немає акаунту? Зареєструватися',
                 haveAccount: 'Вже є акаунт? Увійти',
+                logoutBtn: 'Вийти',
+                welcome: 'Ласкаво просимо!',
             },
         },
     },
@@ -69,8 +71,9 @@ const resources = {
                 registerBtn: 'Sign Up',
                 noAccount: "Don't have an account? Sign up",
                 haveAccount: 'Already have an account? Sign in',
+                logoutBtn: 'Log Out',
+                welcome: 'Welcome!',
             },
-
         },
     },
 };
