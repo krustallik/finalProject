@@ -24,6 +24,17 @@ const resources = {
             list: {
                 empty: 'Немає локальних записів. Додай перший.',
             },
+            auth: {
+                loginTitle: 'Вхід',
+                registerTitle: 'Реєстрація',
+                namePlaceholder: "Ім'я",
+                emailPlaceholder: 'Email',
+                passwordPlaceholder: 'Пароль',
+                loginBtn: 'Увійти',
+                registerBtn: 'Зареєструватися',
+                noAccount: 'Немає акаунту? Зареєструватися',
+                haveAccount: 'Вже є акаунт? Увійти',
+            },
         },
     },
     en: {
@@ -48,6 +59,18 @@ const resources = {
             list: {
                 empty: 'No local records yet. Add the first one.',
             },
+            auth: {
+                loginTitle: 'Login',
+                registerTitle: 'Register',
+                namePlaceholder: 'Name',
+                emailPlaceholder: 'Email',
+                passwordPlaceholder: 'Password',
+                loginBtn: 'Sign In',
+                registerBtn: 'Sign Up',
+                noAccount: "Don't have an account? Sign up",
+                haveAccount: 'Already have an account? Sign in',
+            },
+
         },
     },
 };

@@ -67,7 +67,15 @@ export default function CustomDrawer(props) {
 
             {/* Вихід */}
             <View style={s.logoutWrap}>
-                <TouchableOpacity onPress={() => {}} style={s.logoutBtn}>
+                <TouchableOpacity
+                    onPress={() => {
+                        props.navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'Auth' }],
+                        });
+                    }}
+                    style={s.logoutBtn}
+                >
                     <Text style={s.logoutText}>{t('drawer.logout')}</Text>
                 </TouchableOpacity>
             </View>
