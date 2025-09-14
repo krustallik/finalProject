@@ -114,7 +114,6 @@ export default function CreateOffenseScreen() {
                 </Text>
             )}
 
-            <OffenseList data={items} onDelete={saving ? () => {} : handleDelete} />
 
             {saving && (
                 <View style={s.overlay}>

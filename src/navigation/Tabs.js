@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import CalendarScreen from '../screens/CalendarScreen';
 import MapScreen from '../screens/MapScreen';
 import CreateOffenseScreen from '../screens/CreateOffenseScreen';
+import CalendarStack from "./CalendarStack";
 
 const Tab = createBottomTabNavigator();
 
@@ -30,7 +31,7 @@ export default function Tabs() {
         >
             <Tab.Screen
                 name="Календар"
-                component={CalendarScreen}
+                component={CalendarStack}
                 options={{ headerShown: false, tabBarLabel: t('tabs.calendar') }}
             />
             <Tab.Screen
