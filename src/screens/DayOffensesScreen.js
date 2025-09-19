@@ -1,4 +1,4 @@
-// src/screens/DayOffensesScreen.js
+
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme, useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -15,7 +15,7 @@ export default function DayOffensesScreen() {
 
     const route = useRoute();
     const navigation = useNavigation();
-    const dateISO = route.params?.dateISO; // 'yyyy-MM-dd'
+    const dateISO = route.params?.dateISO;
     const [items, setItems] = useState([]);
 
     const load = useCallback(async () => {
@@ -27,7 +27,6 @@ export default function DayOffensesScreen() {
         setItems(filtered);
     }, [dateISO]);
 
-    // заголовок як дата
     useEffect(() => {
         if (dateISO) {
             const pretty = format(parseISO(dateISO), 'd LLLL yyyy');

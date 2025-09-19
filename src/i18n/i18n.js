@@ -8,12 +8,23 @@ const resources = {
             drawer: { app: 'Додаток', profile: 'Профіль', themeDark: 'Темна тема', lang: 'Мова', logout: 'Вихід' },
             screens: { profile: 'Профіль', calendarTitle: 'Календар', mapTitle: 'Карта', createTitle: 'Створення правопорушення' },
 
-            common: { delete: 'Видалити', save: 'Зберегти' },
+            common: { delete: 'Видалити', save: 'Зберегти', cancel: 'Відмінити' },
             offense: {
                 takePhoto: 'Зробити фото',
                 changePhoto: 'Змінити фото',
                 descriptionPlaceholder: 'Опис правопорушення *',
                 categoryPlaceholder: 'Категорія (опц.)',
+                descriptionLabel: 'Опис',
+    categoryLabel: 'Категорія',
+     selectCategory: 'Оберіть категорію',
+     categories: {
+       traffic: 'ДТП / Дорожнє',
+           vandalism: 'Вандалізм',
+           theft: 'Крадіжка',
+           noise: 'Шум/Порядок',
+           parking: 'Паркування',
+           other: 'Інше',
+         },
             },
             alerts: {
                 cameraDeniedTitle: 'Немає доступу до камери',
@@ -21,9 +32,8 @@ const resources = {
                 descriptionRequiredTitle: 'Опис обовʼязковий',
                 descriptionRequiredMessage: 'Вкажи короткий опис правопорушення.',
             },
-            list: {
-                empty: 'Немає локальних записів. Додай перший.',
-            },
+            list: { empty: 'Немає локальних записів. Додай перший.' },
+
             auth: {
                 loginTitle: 'Вхід',
                 registerTitle: 'Реєстрація',
@@ -37,6 +47,18 @@ const resources = {
                 logoutBtn: 'Вийти',
                 welcome: 'Ласкаво просимо!',
             },
+
+            calendar: {
+                today: 'Сьогодні',
+                weekdaysShort: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'],
+                monthYear: '{{month}} {{year}} р.',
+            },
+
+            tasks: {
+                headerOnDate: 'Задачі на {{date}}',
+                newPlaceholder: 'Нова задача...',
+                empty: 'Немає задач',
+            },
         },
     },
     en: {
@@ -45,12 +67,23 @@ const resources = {
             drawer: { app: 'App', profile: 'Profile', themeDark: 'Dark theme', lang: 'Language', logout: 'Logout' },
             screens: { profile: 'Profile', calendarTitle: 'Calendar', mapTitle: 'Map', createTitle: 'Create Offense' },
 
-            common: { delete: 'Delete', save: 'Save' },
+            common: { delete: 'Delete', save: 'Save', cancel: 'Cancel' },
             offense: {
                 takePhoto: 'Take Photo',
                 changePhoto: 'Change photo',
                 descriptionPlaceholder: 'Offense description *',
                 categoryPlaceholder: 'Category (optional)',
+                 descriptionLabel: 'Description',
+     categoryLabel: 'Category',
+     selectCategory: 'Select a category',
+     categories: {
+       traffic: 'Traffic/Road',
+           vandalism: 'Vandalism',
+           theft: 'Theft',
+           noise: 'Noise/Order',
+           parking: 'Parking',
+           other: 'Other',
+         },
             },
             alerts: {
                 cameraDeniedTitle: 'Camera access denied',
@@ -58,9 +91,8 @@ const resources = {
                 descriptionRequiredTitle: 'Description is required',
                 descriptionRequiredMessage: 'Please enter a short description of the offense.',
             },
-            list: {
-                empty: 'No local records yet. Add the first one.',
-            },
+            list: { empty: 'No local records yet. Add the first one.' },
+
             auth: {
                 loginTitle: 'Login',
                 registerTitle: 'Register',
@@ -73,6 +105,18 @@ const resources = {
                 haveAccount: 'Already have an account? Sign in',
                 logoutBtn: 'Log Out',
                 welcome: 'Welcome!',
+            },
+
+            calendar: {
+                today: 'Today',
+                weekdaysShort: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                monthYear: '{{month}} {{year}}',
+            },
+
+            tasks: {
+                headerOnDate: 'Tasks for {{date}}',
+                newPlaceholder: 'New task...',
+                empty: 'No tasks',
             },
         },
     },
