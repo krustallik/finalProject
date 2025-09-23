@@ -4,7 +4,7 @@ import MapView, { Marker } from 'react-native-maps';
 import { useTheme, useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import * as Location from 'expo-location';
-import { listOffenses } from '../repositories/offensesRepo';
+import { listOffensesRemoteAll } from '../repositories/offensesRepo';
 
 export default function MapScreen() {
     const { colors } = useTheme();
@@ -13,7 +13,6 @@ export default function MapScreen() {
 
     const mapRef = useRef(null);
     const [items, setItems] = useState([]);
-    const [myPos, setMyPos] = useState(null);
     const [region, setRegion] = useState({
         latitude: 49.0,
         longitude: 31.0,
@@ -24,7 +23,7 @@ export default function MapScreen() {
     useFocusEffect(
         useCallback(() => {
             (async () => {
-                const rows = await listOffenses();
+                const rows = await listOffensesRemoteAll();
                 setItems(rows || []);
 
                 const { status } = await Location.requestForegroundPermissionsAsync();
@@ -54,7 +53,6 @@ export default function MapScreen() {
                 onRegionChangeComplete={setRegion}
                 showsUserLocation
             >
-                {myPos && <Marker coordinate={myPos} title="Я тут" pinColor="blue" />}
 
                 {items
                     .filter((x) => x.latitude != null && x.longitude != null)
@@ -63,7 +61,10 @@ export default function MapScreen() {
                             key={p.id}
                             coordinate={{ latitude: p.latitude, longitude: p.longitude }}
                             title={p.description}
-                            description={p.category || undefined}
+                            description={[
+                            p.category,
+                            p.userName ? t('byUser', { user: p.userName }) : undefined
+                          ].filter(Boolean).join(' • ') || undefined}
                         />
                     ))}
             </MapView>

@@ -1,50 +1,49 @@
-import { getAll, run } from '../db/database';
+// src/repositories/offensesRepo.js
+import { getAllOffenses, getMyOffenses, postOffense, deleteOffenseRemote } from '../api/offenses';
+import { run, getAll } from '../db/database';
 
-export async function createLocal({ description, category, imageBase64, createdAt, coords }) {
-    const ts = createdAt || new Date().toISOString();
-    const lat = coords?.latitude ?? null;
-    const lng = coords?.longitude ?? null;
+// -------- онлайнові --------
+export async function listOffensesRemoteAll() {
+    return await getAllOffenses();
+}
+export async function listOffensesRemoteMine() {
+    return await getMyOffenses();
+}
+export async function createRemoteOffense({ description, category, createdAt, coords, photoUrl, photoId }) {
+    return await postOffense({
+        description,
+        category,
+        createdAt,
+        latitude: coords?.latitude,
+        longitude: coords?.longitude,
+        photoUrl,
+        photoId,
+    });
+}
+export async function deleteOffenseRemoteById(id) {
+    await deleteOffenseRemote(String(id));
+}
 
+// -------- офлайн (для синку) --------
+export async function createLocalOffense({ description, category, imageBase64, createdAt, coords }) {
     await run(
-        `INSERT INTO offenses (description, category, image_base64, latitude, longitude, created_at, is_synced)
-         VALUES (?, ?, ?, ?, ?, ?, 0);`,
-        [description.trim(), (category || '').trim(), imageBase64 || null, lat, lng, ts]
+        `INSERT INTO offenses (description, category, image_base64, latitude, longitude, created_at)
+         VALUES (?,?,?,?,?,?)`,
+        [
+            description.trim(),
+            (category || '').trim(),
+            imageBase64 || null,
+            coords?.latitude ?? null,
+            coords?.longitude ?? null,
+            createdAt || new Date().toISOString(),
+        ]
     );
 }
 
-export async function createSynced({ description, category, photo_url, photo_id, createdAt, coords }) {
-    const ts = createdAt || new Date().toISOString();
-    const lat = coords?.latitude ?? null;
-    const lng = coords?.longitude ?? null;
-
-    await run(
-        `INSERT INTO offenses (description, category, photo_url, photo_id, latitude, longitude, created_at, is_synced)
-         VALUES (?, ?, ?, ?, ?, ?, ?, 1);`,
-        [description.trim(), (category || '').trim(), photo_url || null, photo_id || null, lat, lng, ts]
-    );
+export async function listPendingLocal() {
+    return await getAll(`SELECT * FROM offenses WHERE image_base64 IS NOT NULL AND image_base64 != '' ORDER BY created_at ASC`);
 }
 
-export async function listOffenses() {
-    return getAll(`SELECT * FROM offenses ORDER BY created_at DESC;`);
-}
-
-export async function listPending() {
-    return getAll(`SELECT * FROM offenses WHERE is_synced = 0 ORDER BY created_at ASC;`);
-}
-
-export async function markSynced(id, { photo_url, photo_id }) {
-    await run(
-        `UPDATE offenses
-         SET is_synced = 1, photo_url = ?, photo_id = ?, image_base64 = NULL
-         WHERE id = ?;`,
-        [photo_url || null, photo_id || null, id]
-    );
-}
-
-export async function deleteOffense(id) {
-    await run('DELETE FROM offenses WHERE id = ?;', [id]);
-}
-
-export async function clearOffenses() {
-    await run('DELETE FROM offenses;');
+export async function deleteLocalById(id) {
+    await run(`DELETE FROM offenses WHERE id = ?`, [id]);
 }

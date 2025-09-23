@@ -5,6 +5,8 @@ import { useTheme } from '@react-navigation/native';
 import { ThemeCtx } from '../theme/ThemeProvider';
 import {useTranslation} from "react-i18next";
 import {LangCtx} from "../i18n/LanguageProvider";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { api } from '../api/api';
 
 export default function CustomDrawer(props) {
     const { colors } = useTheme();
@@ -15,6 +17,16 @@ export default function CustomDrawer(props) {
     const { lang, setLang } = useContext(LangCtx);
 
     const s = makeStyles(colors);
+
+    const handleLogout = async () => {
+          try {
+                    await AsyncStorage.multiRemove(['token', 'user']);
+                    delete api.defaults.headers.common.Authorization;
+              } finally {
+                    props.navigation.reset({ index: 0, routes: [{ name: 'Auth' }] });
+              }
+        };
+
 
     return (
         <DrawerContentScrollView
@@ -67,15 +79,7 @@ export default function CustomDrawer(props) {
 
             {/* Вихід */}
             <View style={s.logoutWrap}>
-                <TouchableOpacity
-                    onPress={() => {
-                        props.navigation.reset({
-                            index: 0,
-                            routes: [{ name: 'Auth' }],
-                        });
-                    }}
-                    style={s.logoutBtn}
-                >
+                <TouchableOpacity onPress={handleLogout} style={s.logoutBtn}>
                     <Text style={s.logoutText}>{t('drawer.logout')}</Text>
                 </TouchableOpacity>
             </View>

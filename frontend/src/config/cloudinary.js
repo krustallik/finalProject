@@ -1,6 +1,5 @@
-import Constants from 'expo-constants';
 
-const extra = Constants.expoConfig.extra;
+
 
 export const CLOUDINARY = {
     cloudName: "dctwua7xj",

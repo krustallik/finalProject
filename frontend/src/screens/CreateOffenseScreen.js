@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, {useEffect, useState, useCallback, useRef} from 'react';
 import {
     View,
     Text,
@@ -15,33 +15,33 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 
 import { initDb } from '../db/database';
-import { listOffenses, deleteOffense, createLocal, createSynced } from '../repositories/offensesRepo';
+import {
+  listOffensesRemoteMine,
+      createRemoteOffense,
+      createLocalOffense,
+    } from '../repositories/offensesRepo';
 import OffenseForm from '../components/offenses/OffenseForm';
-import OffenseList from '../components/offenses/OffenseList';
 import { uploadBase64ToCloudinary } from '../services/cloudinary';
 import { isOnline } from '../services/network';
-import { syncPendingOffenses } from '../services/sync';
 
 export default function CreateOffenseScreen() {
     const { colors } = useTheme();
     const { t } = useTranslation();
     const s = makeStyles(colors);
+    const submittingRef = useRef(false);
 
-    const [items, setItems] = useState([]);
     const [imageBase64, setImageBase64] = useState(null);
     const [coords, setCoords] = useState(null);
     const [saving, setSaving] = useState(false);
 
     const load = async () => {
-        const rows = await listOffenses();
+        const rows = await listOffensesRemoteMine();
         setItems(rows);
     };
 
     useEffect(() => {
         (async () => {
             await initDb();
-            await load();
-            if (await isOnline()) await syncPendingOffenses();
             await load();
         })();
     }, []);
@@ -71,46 +71,49 @@ export default function CreateOffenseScreen() {
     };
 
     const handleSave = async ({ description, category, imageBase64 }) => {
+        if (submittingRef.current) return;
+        submittingRef.current = true;
         const created_at = new Date().toISOString();
         setSaving(true);
+
         try {
+            let doneRemote = false;
+
             if (await isOnline()) {
+
                 const { secure_url, public_id } = await uploadBase64ToCloudinary(imageBase64);
-                await createSynced({
+
+                await createRemoteOffense({
                     description,
                     category,
-                    photo_url: secure_url,
-                    photo_id: public_id,
                     createdAt: created_at,
                     coords,
+                    photoUrl: secure_url,
+                    photoId: public_id,
                 });
-                Alert.alert('OK', 'Фото завантажено у хмару.');
+                doneRemote = true;
             } else {
-                await createLocal({ description, category, imageBase64, createdAt: created_at, coords });
-                Alert.alert('OK', 'Збережено локально (офлайн).');
+                // офлайн одразу — пишемо локально
+                await createLocalOffense({ description, category, imageBase64, createdAt: created_at, coords });
             }
-            setImageBase64(null);
-            setCoords(null);
-            await load();
+
+            Alert.alert('OK', doneRemote ? 'Фото завантажено у хмару.' : 'Збережено локально (офлайн).');
         } catch (e) {
             try {
-                await createLocal({ description, category, imageBase64, createdAt: created_at, coords });
-                setImageBase64(null);
-                setCoords(null);
-                await load();
+                await createLocalOffense({ description, category, imageBase64, createdAt: created_at, coords });
                 Alert.alert('OK', 'Сервер недоступний. Збережено локально.');
             } catch {
                 Alert.alert('Помилка', 'Не вдалося зберегти запис.');
             }
         } finally {
             setSaving(false);
+            submittingRef.current = false;
+            setImageBase64(null);
+            setCoords(null);
+            await load();
         }
     };
 
-    const handleDelete = async (id) => {
-        await deleteOffense(id);
-        await load();
-    };
 
     return (
         <KeyboardAvoidingView

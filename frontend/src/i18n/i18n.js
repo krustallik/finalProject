@@ -7,7 +7,7 @@ const resources = {
             tabs: { calendar: 'Календар', map: 'Карта', create: 'Створити' },
             drawer: { app: 'Додаток', profile: 'Профіль', themeDark: 'Темна тема', lang: 'Мова', logout: 'Вихід' },
             screens: { profile: 'Профіль', calendarTitle: 'Календар', mapTitle: 'Карта', createTitle: 'Створення правопорушення' },
-
+            byUser: 'Автор: {{user}}',
             common: { delete: 'Видалити', save: 'Зберегти', cancel: 'Відмінити' },
             offense: {
                 takePhoto: 'Зробити фото',
@@ -59,6 +59,7 @@ const resources = {
                 newPlaceholder: 'Нова задача...',
                 empty: 'Немає задач',
             },
+
         },
     },
     en: {
@@ -66,7 +67,7 @@ const resources = {
             tabs: { calendar: 'Calendar', map: 'Map', create: 'Create' },
             drawer: { app: 'App', profile: 'Profile', themeDark: 'Dark theme', lang: 'Language', logout: 'Logout' },
             screens: { profile: 'Profile', calendarTitle: 'Calendar', mapTitle: 'Map', createTitle: 'Create Offense' },
-
+            byUser: 'By: {{user}}',
             common: { delete: 'Delete', save: 'Save', cancel: 'Cancel' },
             offense: {
                 takePhoto: 'Take Photo',

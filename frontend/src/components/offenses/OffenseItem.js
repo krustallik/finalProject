@@ -21,7 +21,7 @@ export default function OffenseItem({ item, onDelete }) {
                     source={{
                         uri: item.image_base64
                             ? `data:image/jpeg;base64,${item.image_base64}`
-                            : item.photo_url,
+                            : (item.photoUrl || item.photo_url),
                     }}
                     style={s.image}
                     resizeMode="cover"
@@ -37,8 +37,12 @@ export default function OffenseItem({ item, onDelete }) {
                 </Text>
             )}
 
+            {item.userName && (
+                <Text style={s.date}>{new Date(item.createdAt || item.createdAt).toLocaleString()}</Text>
+            )}
+
             <Text style={s.date}>
-                {new Date(item.created_at).toLocaleString()}
+                {new Date(item.createdAt).toLocaleString()}
             </Text>
             {(item.latitude != null && item.longitude != null) && (
                 <Text style={s.coords}>

@@ -1,11 +1,10 @@
-// src/screens/CalendarScreen.js
+
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useNavigation, useTheme, useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { format, startOfMonth } from 'date-fns';
-import { listOffenses, deleteOffense } from '../repositories/offensesRepo';
-import OffenseList from '../components/offenses/OffenseList';
+import { listOffensesRemoteAll, deleteOffenseRemoteById } from '../repositories/offensesRepo';
 import Calendar from '../components/calendar/Calendar';
 
 export default function CalendarScreen() {
@@ -19,7 +18,7 @@ export default function CalendarScreen() {
     const [allOffenses, setAllOffenses] = useState([]);
 
     const load = useCallback(async () => {
-        const rows = await listOffenses();
+        const rows = await listOffensesRemoteAll();
         setAllOffenses(rows || []);
     }, []);
 
@@ -34,8 +33,8 @@ export default function CalendarScreen() {
     const datesWithOffenses = useMemo(() => {
         const set = new Set();
         for (const it of allOffenses) {
-            if (!it.created_at) continue;
-            set.add(fmt(new Date(it.created_at)));
+            if (!it.createdAt) continue;
+            set.add(fmt(new Date(it.createdAt)));
         }
         return Array.from(set);
     }, [allOffenses]);
@@ -43,15 +42,11 @@ export default function CalendarScreen() {
     const dayItems = useMemo(() => {
         const key = fmt(selectedDate);
         return (allOffenses || []).filter((it) => {
-            if (!it.created_at) return false;
-            return fmt(new Date(it.created_at)) === key;
+            if (!it.createdAt) return false;
+            return fmt(new Date(it.createdAt)) === key;
         });
     }, [allOffenses, selectedDate]);
 
-    const handleDelete = async (id) => {
-        await deleteOffense(id);
-        await load();
-    };
 
     return (
         <View style={s.container}>
@@ -62,7 +57,6 @@ export default function CalendarScreen() {
                 selectedDate={selectedDate}
                 onSelectDate={(d) => {
                     setSelectedDate(d);
-                    // відкриваємо окремий екран зі списком — буде дефолтна кнопка "Назад"
                     navigation.navigate('DayOffenses', { dateISO: fmt(d) });
                 }}
                 onMonthChange={(d) => setCurrentDate(startOfMonth(d))}

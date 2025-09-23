@@ -45,6 +45,10 @@ export default function AuthScreen() {
             await AsyncStorage.setItem('token', token || '');
             await AsyncStorage.setItem('user', JSON.stringify(user || {}));
 
+            if (token) {
+                api.defaults.headers.common.Authorization = `Bearer ${token}`;
+            }
+
             navigation.replace('Main'); // твоє кореневе дерево вкладок/дровера
         } catch (err) {
             console.warn(err?.response?.data || err.message);

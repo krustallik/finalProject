@@ -9,8 +9,10 @@ import './src/i18n/i18n';
 
 import DrawerNavigator from './src/navigation/DrawerNavigator';
 import AuthScreen from './src/screens/AuthScreen';
+import {syncPendingOffenses} from "./src/services/sync";
 
 const Stack = createNativeStackNavigator();
+
 
 export default function App() {
     return (

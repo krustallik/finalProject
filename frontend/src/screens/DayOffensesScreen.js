@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { useTheme, useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import { format, parseISO } from 'date-fns';
 import OffenseList from '../components/offenses/OffenseList';
-import { listOffenses, deleteOffense } from '../repositories/offensesRepo';
+import {deleteOffenseRemoteById, listOffensesRemoteAll} from '../repositories/offensesRepo';
 
 export default function DayOffensesScreen() {
     const { colors } = useTheme();
@@ -19,12 +19,12 @@ export default function DayOffensesScreen() {
     const [items, setItems] = useState([]);
 
     const load = useCallback(async () => {
-        const all = await listOffenses();
+        const all = await listOffensesRemoteAll();
         const filtered = (all||[]).filter(x => {
-            if (!x.created_at) return false;
-            return format(new Date(x.created_at), 'yyyy-MM-dd') === dateISO;
+            if (!x.createdAt) return false;
+            return format(new Date(x.createdAt), 'yyyy-MM-dd') === dateISO;
         });
-        setItems(filtered);
+        setItems(all);
     }, [dateISO]);
 
     useEffect(() => {
@@ -37,7 +37,7 @@ export default function DayOffensesScreen() {
     useEffect(() => { load(); }, [load]);
     useFocusEffect(useCallback(() => { load(); }, [load]));
 
-    const onDelete = async (id) => { await deleteOffense(id); await load(); };
+    const onDelete = async (id) => { await deleteOffenseRemoteById(id); await load(); };
 
     return (
         <View style={s.wrap}>
