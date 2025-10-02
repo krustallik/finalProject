@@ -11,6 +11,18 @@ import { syncPendingOffenses } from '../services/sync';
 
 const Drawer = createDrawerNavigator();
 
+/**
+ * DrawerNavigator
+ *
+ * Основний Drawer-навігатор застосунку.
+ * Містить вкладку "Додаток" (Tabs) і "Профіль".
+ * При монтуванні ініціалізує локальну базу даних, виконує синхронізацію офлайн-записів.
+ *
+ * Behavior:
+ * - initDb() виконується при старті
+ * - кожну хвилину намагається синхронізувати офлайн-порушення, якщо є мережа
+ */
+
 export default function DrawerNavigator() {
     const { t } = useTranslation();
 
@@ -32,6 +44,7 @@ export default function DrawerNavigator() {
 
     return (
         <Drawer.Navigator
+            // Кастомне меню Drawer
             drawerContent={(props) => <CustomDrawer {...props} />}
             screenOptions={{ headerTitleAlign: 'center' }}
         >

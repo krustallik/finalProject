@@ -4,6 +4,15 @@ import { useTheme } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import OffenseItem from './OffenseItem';
 
+/**
+ * OffenseList
+ *
+ * Список порушень на базі FlatList.
+ *
+ * Props:
+ * @param {Array<any>} data                 - масив елементів порушень
+ * @param {(id: string|number) => void} onDelete - колбек видалення елемента за id
+ */
 export default function OffenseList({ data, onDelete }) {
     const { colors } = useTheme();
     const { t } = useTranslation();
@@ -11,9 +20,14 @@ export default function OffenseList({ data, onDelete }) {
     return (
         <FlatList
             data={data}
+
             keyExtractor={(it) => String(it.id)}
-            renderItem={({ item }) => <OffenseItem item={item} onDelete={() => onDelete?.(item.id)} />}
+
+            renderItem={({ item }) => (
+                <OffenseItem item={item} onDelete={() => onDelete?.(item.id)} />
+            )}
             contentContainerStyle={{ paddingBottom: 40 }}
+
             ListEmptyComponent={
                 <Text style={{ color: colors.text, opacity: 0.6, textAlign: 'center', marginTop: 20 }}>
                     {t('list.empty')}

@@ -183,7 +183,6 @@ export default function OffenseForm({
                     multiline
                     style={s.input}
                     returnKeyType="done"
-                    blurOnSubmit
                 />
             </View>
 

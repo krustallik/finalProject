@@ -9,30 +9,56 @@ import { LangCtx } from '../i18n/LanguageProvider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '../api/api';
 
+/**
+ * CustomDrawer
+ *
+ * Кастомний вміст DrawerMenu:
+ * - список сторінок (DrawerItemList)
+ * - перемикач теми
+ * - вибір мови
+ * - кнопка входу / виходу
+ *
+ * State:
+ * - isAuthed: чи є збережений токен
+ * - langOpen: чи відкритий список мов
+ *
+ *  Props (передаються автоматично з Drawer.Navigator):
+ *  @param {object} props.navigation  - об’єкт навігації Drawer
+ *  @param {object} props.state       - стан Drawer-навігатора
+ *  @param {function} props.descriptors - дескриптори для кожного екрана
+ *
+ */
+
 export default function CustomDrawer(props) {
     const { colors } = useTheme();
     const { t } = useTranslation();
     const { themeName, toggleTheme } = useContext(ThemeCtx);
-
-    const [langOpen, setLangOpen] = useState(false);
     const { lang, setLang } = useContext(LangCtx);
 
+    const [langOpen, setLangOpen] = useState(false);
     const [isAuthed, setIsAuthed] = useState(false);
 
-    // простий чек токена з AsyncStorage
+    // чек токена з AsyncStorage
     const checkAuth = async () => {
-        const token = await AsyncStorage.getItem('token');
-        setIsAuthed(!!token);
+        try {
+            const token = await AsyncStorage.getItem('token');
+            setIsAuthed(!!token);
+        } catch (e) {
+            console.warn('Auth check failed', e);
+            setIsAuthed(false);
+        }
     };
 
+    // перевірка при фокусі навігації
     useEffect(() => {
         checkAuth();
-        const unsub = props.navigation.addListener('focus', checkAuth);
-        return unsub;
+        return props.navigation.addListener('focus', checkAuth);
     }, [props.navigation]);
+
 
     const s = makeStyles(colors);
 
+    // вихід
     const handleLogout = async () => {
         try {
             await AsyncStorage.multiRemove(['token', 'user']);
@@ -43,6 +69,7 @@ export default function CustomDrawer(props) {
         }
     };
 
+    // перехід на екран автентифікації
     const handleGoAuth = () => {
         props.navigation.closeDrawer();
         props.navigation.navigate('Auth');
@@ -50,9 +77,10 @@ export default function CustomDrawer(props) {
 
     return (
         <DrawerContentScrollView {...props} contentContainerStyle={s.container}>
+            {/* стандартні елементи Drawer */}
             <DrawerItemList {...props} />
 
-            {/* Тема */}
+            {/* перемикач теми */}
             <View style={s.rowBetween}>
                 <Text style={s.label}>{t('drawer.themeDark')}</Text>
                 <Switch
@@ -63,7 +91,7 @@ export default function CustomDrawer(props) {
                 />
             </View>
 
-            {/* Мова */}
+            {/* вибір мови */}
             <View style={s.langBlock}>
                 <TouchableOpacity onPress={() => setLangOpen(v => !v)} style={s.langHeader}>
                     <Text style={s.label}>
@@ -81,12 +109,13 @@ export default function CustomDrawer(props) {
                             return (
                                 <TouchableOpacity
                                     key={item.code}
-                                    onPress={() => { setLang(item.code); setLangOpen(false); }}
+                                    onPress={() => {
+                                        setLang(item.code);
+                                        setLangOpen(false);
+                                    }}
                                     style={[s.option, i === 0 && s.optionBorder, active && s.optionActive]}
                                 >
-                                    <Text style={[s.optionText, active && s.optionTextActive]}>
-                                        {item.label}
-                                    </Text>
+                                    <Text style={[s.optionText, active && s.optionTextActive]}>{item.label}</Text>
                                 </TouchableOpacity>
                             );
                         })}
@@ -94,7 +123,7 @@ export default function CustomDrawer(props) {
                 )}
             </View>
 
-            {/* Кнопка входу / виходу */}
+            {/* кнопка входу/виходу */}
             <View style={s.logoutWrap}>
                 {isAuthed ? (
                     <TouchableOpacity onPress={handleLogout} style={s.logoutBtn}>

@@ -3,6 +3,17 @@ import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
+
+/**
+ * OffenseItem
+ *
+ * Карточка одного порушення: фото, опис, категорія, дата, координати + кнопка видалення.
+ *
+ * Props:
+ * @param offense item
+ * @param {() => void} onDelete  - викликається при натисканні "Delete"
+ */
+
 export default function OffenseItem({ item, onDelete }) {
     const { colors } = useTheme();
     const { t } = useTranslation();
@@ -10,40 +21,41 @@ export default function OffenseItem({ item, onDelete }) {
 
     return (
         <View style={s.card}>
+            {/* Дії з елементом (видалення) */}
             <View style={s.actions}>
                 <TouchableOpacity onPress={onDelete} style={s.deleteBtn}>
                     <Text style={s.deleteBtnText}>{t('common.delete')}</Text>
                 </TouchableOpacity>
             </View>
 
-            {!!(item.image_base64 || item.photo_url) && (
-                <Image
-                    source={{
-                        uri: item.image_base64
-                            ? `data:image/jpeg;base64,${item.image_base64}`
-                            : (item.photoUrl || item.photo_url),
-                    }}
-                    style={s.image}
-                    resizeMode="cover"
-                />
-            )}
+            {/* Фото порушення (якщо є URL) */}
+            <Image
+                source={{ uri: item.photoUrl }}
+                style={s.image}
+                resizeMode="cover"
+            />
 
-
+            {/* Опис */}
             <Text style={s.title}>{item.description}</Text>
 
+            {/* Категорія (локалізований лейбл) */}
             {!!item.category && (
                 <Text style={s.category}>
                     {t('calendar.category')}: {t(`offense.categories.${item.category}`, item.category)}
                 </Text>
             )}
 
+            {/* (Ймовірно зайва умова з userName — залишено як є) */}
             {item.userName && (
                 <Text style={s.date}>{new Date(item.createdAt || item.createdAt).toLocaleString()}</Text>
             )}
 
+            {/* Дата створення */}
             <Text style={s.date}>
                 {new Date(item.createdAt).toLocaleString()}
             </Text>
+
+            {/* Координати, якщо відомі */}
             {(item.latitude != null && item.longitude != null) && (
                 <Text style={s.coords}>
                     {item.latitude.toFixed(5)}, {item.longitude.toFixed(5)}

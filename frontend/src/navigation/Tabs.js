@@ -10,6 +10,19 @@ import CalendarStack from "./CalendarStack";
 
 const Tab = createBottomTabNavigator();
 
+/**
+ * Tabs
+ *
+ * Нижня панель навігації (BottomTabNavigator).
+ * Складається з трьох вкладок:
+ * - Календар (CalendarStack)
+ * - Карта (MapScreen)
+ * - Створити (CreateOffenseScreen)
+ *
+ * Особливості:
+ * - Використовуються іконки Ionicons (залежно від route.name)
+ */
+
 export default function Tabs() {
     const { colors } = useTheme();
     const { t } = useTranslation();
@@ -18,6 +31,7 @@ export default function Tabs() {
         <Tab.Navigator
             screenOptions={({ route }) => ({
                 headerTitleAlign: 'center',
+                // Вибір іконки для вкладки
                 tabBarIcon: ({ focused, size }) => {
                     const color = focused ? colors.primary : colors.border;
                     let name = 'ellipse';
@@ -28,16 +42,21 @@ export default function Tabs() {
                 },
             })}
         >
+            {/* Вкладка календаря */}
             <Tab.Screen
                 name="Календар"
                 component={CalendarStack}
                 options={{ headerShown: false, tabBarLabel: t('tabs.calendar') }}
             />
+
+            {/* Вкладка карти */}
             <Tab.Screen
                 name="Карта"
                 component={MapScreen}
                 options={{ headerShown: false, tabBarLabel: t('tabs.map') }}
             />
+
+            {/* Вкладка створення порушення */}
             <Tab.Screen
                 name="Створити"
                 component={CreateOffenseScreen}

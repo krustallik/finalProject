@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback, useRef} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {
     View,
     Text,
@@ -9,14 +9,13 @@ import {
     ScrollView,
     Platform,
 } from 'react-native';
-import { useTheme, useFocusEffect } from '@react-navigation/native';
+import { useTheme } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 
 import { initDb } from '../db/database';
 import {
-    listOffensesRemoteMine,
     createRemoteOffense,
     createLocalOffense,
 } from '../repositories/offensesRepo';

@@ -1,5 +1,5 @@
 
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useNavigation, useTheme, useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -44,8 +44,6 @@ export default function CalendarScreen() {
         const rows = await listOffensesRemoteAll();
         setAllOffenses(rows || []);
     }, []);
-
-    useEffect(() => { load(); }, [load]);
 
     useFocusEffect(useCallback(() => { load(); }, [load]));
 
