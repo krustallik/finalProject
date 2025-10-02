@@ -1,7 +1,26 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet } from 'react-native';
-import { useTheme } from '@react-navigation/native';
+import React, {useCallback, useState} from 'react';
+import {View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Alert} from 'react-native';
+import {useFocusEffect, useTheme} from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+
+/**
+ * OffenseForm
+ *
+ * Презентаційна форма створення порушення:
+ *  - показує/змінює фото,
+ *  - вибір категорії,
+ *  - опис,
+ *  - кнопки Скасувати/Зберегти.
+ *
+ * Props:
+ *  - imageBase64: string|null — поточне фото у base64 (або null, щоб запропонувати зробити фото)
+ *  - onChangePhoto: () => void — викликається щоб зробити/змінити фото
+ *  - onSaved: ({ description, category, imageBase64 }) => void — submit форми
+ *  - loading: boolean — блокує кнопки на час збереження
+ *  - onCancel: () => void — скинути форму/фото
+ */
 
 export default function OffenseForm({
                                         imageBase64,
@@ -14,33 +33,49 @@ export default function OffenseForm({
     const { t } = useTranslation();
     const s = makeStyles(colors);
 
+    // локальний стан форми
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('');
     const [ddOpen, setDdOpen] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+    // словник категорій
     const CATEGORIES = [
-        { key: 'traffic', label: t('offense.categories.traffic') },
+        { key: 'traffic',   label: t('offense.categories.traffic') },
         { key: 'vandalism', label: t('offense.categories.vandalism') },
-        { key: 'theft', label: t('offense.categories.theft') },
-        { key: 'noise', label: t('offense.categories.noise') },
-        { key: 'parking', label: t('offense.categories.parking') },
-        { key: 'other', label: t('offense.categories.other') },
+        { key: 'theft',     label: t('offense.categories.theft') },
+        { key: 'noise',     label: t('offense.categories.noise') },
+        { key: 'parking',   label: t('offense.categories.parking') },
+        { key: 'other',     label: t('offense.categories.other') },
     ];
+
+    // перевірка авторизації (показуємо вимогу увійти перед фотозйомкою)
+    useFocusEffect(
+        useCallback(() => {
+            (async () => {
+                const token = await AsyncStorage.getItem('token');
+                setIsLoggedIn(!!token);
+            })();
+        }, [])
+    );
 
     const selectedLabel =
         CATEGORIES.find((c) => c.key === category)?.label || t('offense.selectCategory');
 
+    // submit форми
     const handleSave = () => {
         if (!description.trim()) {
             alert(`${t('alerts.descriptionRequiredTitle')}\n${t('alerts.descriptionRequiredMessage')}`);
             return;
         }
         onSaved?.({ description: description.trim(), category, imageBase64 });
+        // скидання локального стану
         setDescription('');
         setCategory('');
         setDdOpen(false);
     };
 
+    // скасування відправки порушення
     const handleCancel = () => {
         setDescription('');
         setCategory('');
@@ -48,15 +83,30 @@ export default function OffenseForm({
         onCancel?.();
     };
 
+    // перевірка логіну перед спробою зробити фото
+    const handleTakePhoto = () => {
+        if (!isLoggedIn) {
+            Alert.alert(
+                t('alerts.authRequiredTitle', 'Потрібна авторизація'),
+                t('alerts.authRequiredMessage', 'Увійдіть у свій акаунт, щоб створити правопорушення.')
+            );
+            return;
+        }
+        onChangePhoto?.();
+    };
+
+    // якщо фото ще немає — показуємо кнопку "Зробити фото"
     if (!imageBase64) {
         return (
             <View style={s.card}>
                 <TouchableOpacity
                     style={[s.primaryBtn, loading && s.btnDisabled]}
-                    onPress={onChangePhoto}
+                    onPress={handleTakePhoto}
                     disabled={loading}
                 >
-                    <Text style={s.primaryBtnText}>{t('offense.takePhoto', 'Take Photo')}</Text>
+                    <Text style={s.primaryBtnText}>
+                        {t('offense.takePhoto', 'Take Photo')}
+                    </Text>
                 </TouchableOpacity>
             </View>
         );
@@ -64,12 +114,14 @@ export default function OffenseForm({
 
     return (
         <View style={s.card}>
+            {/* превʼю фото, яке зробив користувач */}
             <Image
                 source={{ uri: `data:image/jpeg;base64,${imageBase64}` }}
                 style={s.image}
                 resizeMode="cover"
             />
 
+            {/* кнопка для заміни фото */}
             <TouchableOpacity
                 style={[s.outlineBtn, loading && s.btnDisabled]}
                 onPress={onChangePhoto}
@@ -78,9 +130,11 @@ export default function OffenseForm({
                 <Text style={s.outlineBtnText}>{t('offense.changePhoto')}</Text>
             </TouchableOpacity>
 
+            {/* блок вибору категорії правопорушення */}
             <View style={s.fieldBlock}>
                 <Text style={s.label}>{t('offense.categoryLabel')}</Text>
 
+                {/* кнопка для відкриття/закриття дропдауну */}
                 <TouchableOpacity
                     style={s.dropdownToggle}
                     onPress={() => setDdOpen((v) => !v)}
@@ -90,6 +144,7 @@ export default function OffenseForm({
                     <Text style={s.dropdownCaret}>{ddOpen ? '▲' : '▼'}</Text>
                 </TouchableOpacity>
 
+                {/* список категорій, якщо дропдаун відкритий */}
                 {ddOpen && (
                     <View style={s.dropdownMenu}>
                         {CATEGORIES.map((opt, idx) => {
@@ -117,6 +172,7 @@ export default function OffenseForm({
                 )}
             </View>
 
+            {/* блок для вводу опису правопорушення */}
             <View style={s.fieldBlock}>
                 <Text style={s.label}>{t('offense.descriptionLabel')}</Text>
                 <TextInput
@@ -128,11 +184,10 @@ export default function OffenseForm({
                     style={s.input}
                     returnKeyType="done"
                     blurOnSubmit
-                    onSubmitEditing={() => {
-                    }}
                 />
             </View>
 
+            {/* кнопки "Скасувати" та "Зберегти" */}
             <View style={s.btnRow}>
                 <TouchableOpacity
                     style={[s.secondaryBtn, loading && s.btnDisabled]}

@@ -1,41 +1,58 @@
-import React, { useContext, useState } from 'react';
+// src/navigation/CustomDrawer.js
+import React, { useContext, useEffect, useState } from 'react';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { View, Text, Switch, TouchableOpacity, StyleSheet } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import { ThemeCtx } from '../theme/ThemeProvider';
-import {useTranslation} from "react-i18next";
-import {LangCtx} from "../i18n/LanguageProvider";
+import { useTranslation } from 'react-i18next';
+import { LangCtx } from '../i18n/LanguageProvider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '../api/api';
 
 export default function CustomDrawer(props) {
     const { colors } = useTheme();
-    const { t } = useTranslation();// 🎯 кольори з активної теми
+    const { t } = useTranslation();
     const { themeName, toggleTheme } = useContext(ThemeCtx);
 
     const [langOpen, setLangOpen] = useState(false);
     const { lang, setLang } = useContext(LangCtx);
 
+    const [isAuthed, setIsAuthed] = useState(false);
+
+    // простий чек токена з AsyncStorage
+    const checkAuth = async () => {
+        const token = await AsyncStorage.getItem('token');
+        setIsAuthed(!!token);
+    };
+
+    useEffect(() => {
+        checkAuth();
+        const unsub = props.navigation.addListener('focus', checkAuth);
+        return unsub;
+    }, [props.navigation]);
+
     const s = makeStyles(colors);
 
     const handleLogout = async () => {
-          try {
-                    await AsyncStorage.multiRemove(['token', 'user']);
-                    delete api.defaults.headers.common.Authorization;
-              } finally {
-                    props.navigation.reset({ index: 0, routes: [{ name: 'Auth' }] });
-              }
-        };
+        try {
+            await AsyncStorage.multiRemove(['token', 'user']);
+            delete api.defaults.headers.common.Authorization;
+            setIsAuthed(false);
+        } finally {
+            props.navigation.closeDrawer();
+        }
+    };
 
+    const handleGoAuth = () => {
+        props.navigation.closeDrawer();
+        props.navigation.navigate('Auth');
+    };
 
     return (
-        <DrawerContentScrollView
-            {...props}
-            contentContainerStyle={s.container}
-        >
+        <DrawerContentScrollView {...props} contentContainerStyle={s.container}>
             <DrawerItemList {...props} />
 
-            {/* тема */}
+            {/* Тема */}
             <View style={s.rowBetween}>
                 <Text style={s.label}>{t('drawer.themeDark')}</Text>
                 <Switch
@@ -77,11 +94,19 @@ export default function CustomDrawer(props) {
                 )}
             </View>
 
-            {/* Вихід */}
+            {/* Кнопка входу / виходу */}
             <View style={s.logoutWrap}>
-                <TouchableOpacity onPress={handleLogout} style={s.logoutBtn}>
-                    <Text style={s.logoutText}>{t('drawer.logout')}</Text>
-                </TouchableOpacity>
+                {isAuthed ? (
+                    <TouchableOpacity onPress={handleLogout} style={s.logoutBtn}>
+                        <Text style={s.logoutText}>{t('drawer.logout')}</Text>
+                    </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity onPress={handleGoAuth} style={s.loginBtn}>
+                        <Text style={s.loginText}>
+                            {t('auth.loginTitle')} / {t('auth.registerTitle')}
+                        </Text>
+                    </TouchableOpacity>
+                )}
             </View>
         </DrawerContentScrollView>
     );
@@ -102,7 +127,6 @@ const makeStyles = (colors) =>
         },
 
         langBlock: { paddingHorizontal: 16, paddingTop: 16 },
-
         langHeader: { paddingVertical: 8 },
 
         dropdown: {
@@ -119,19 +143,15 @@ const makeStyles = (colors) =>
             paddingHorizontal: 12,
             backgroundColor: colors.card,
         },
-
         optionBorder: { borderBottomWidth: 1, borderBottomColor: colors.border },
-
-        // активна опція — виділяємо смужкою зліва та жирнішим текстом
-        optionActive: {
-            borderLeftWidth: 4,
-            borderLeftColor: colors.primary,
-        },
-
+        optionActive: { borderLeftWidth: 4, borderLeftColor: colors.primary },
         optionText: { fontWeight: '500', color: colors.text },
         optionTextActive: { fontWeight: '700', color: colors.primary },
 
         logoutWrap: { paddingHorizontal: 16, paddingVertical: 16 },
         logoutBtn: { paddingVertical: 10 },
         logoutText: { fontSize: 16, color: colors.notification || '#e53935' },
+
+        loginBtn: { paddingVertical: 10 },
+        loginText: { fontSize: 16, color: colors.primary, fontWeight: '600' },
     });

@@ -2,27 +2,51 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 
+
+/**
+ * Day
+ *
+ * Клітинка календаря, яка відображає одну дату.
+ * Може бути виділеною, сьогоднішньою, поза поточним місяцем,
+ * або мати індикатор подій (крапку).
+ *
+ * Props:
+ * @param {Date} date             - дата цього дня
+ * @param {boolean} isCurrentMonth - чи належить дата поточному місяцю
+ * @param {boolean} isToday        - чи це сьогоднішній день
+ * @param {boolean} selected       - чи обраний цей день
+ * @param {boolean} hasOffenses       - чи є порушення у цей день
+ * @param {number} cellSize        - розмір клітинки (px)
+ * @param {function(Date):void} onPress - викликається при натисканні на день
+ */
+
+
 export default function Day(props) {
-    const { date, isCurrentMonth, isToday, selected, hasTasks, cellSize, onPress } = props;
+    const { date, isCurrentMonth, isToday, selected, hasOffenses, cellSize, onPress } = props;
     const { colors } = useTheme();
     const s = makeStyles(colors, cellSize);
 
     return (
         <TouchableOpacity style={s.dayCell} onPress={() => onPress?.(date)} activeOpacity={0.7}>
             <View style={[s.inner, selected && s.selected]}>
+                {/* якщо сьогодні — малюємо синій круг */}
                 {isToday ? (
                     <View style={s.todayBubble}>
                         <Text style={s.todayText}>{date.getDate()}</Text>
                     </View>
                 ) : (
-                    <Text style={[s.dayText, !isCurrentMonth && s.dimmed]}>{date.getDate()}</Text>
+                    <Text style={[s.dayText, !isCurrentMonth && s.dimmed]}>
+                        {date.getDate()}
+                    </Text>
                 )}
 
-                {hasTasks ? <View style={s.taskDot} /> : null}
+                {/* крапка для позначення днів з порушеннями */}
+                {hasOffenses ? <View style={s.taskDot} /> : null}
             </View>
         </TouchableOpacity>
     );
 }
+
 
 const makeStyles = (colors, cellSize) =>
     StyleSheet.create({
@@ -46,6 +70,6 @@ const makeStyles = (colors, cellSize) =>
             width: 8,
             height: 8,
             borderRadius: 4,
-            backgroundColor: colors.notification || '#e11d48', // рожево-червоний як дефолт
+            backgroundColor: colors.notification || '#e11d48',
         },
     });

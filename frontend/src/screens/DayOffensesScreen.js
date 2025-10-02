@@ -24,7 +24,7 @@ export default function DayOffensesScreen() {
             if (!x.createdAt) return false;
             return format(new Date(x.createdAt), 'yyyy-MM-dd') === dateISO;
         });
-        setItems(all);
+        setItems(filtered);
     }, [dateISO]);
 
     useEffect(() => {

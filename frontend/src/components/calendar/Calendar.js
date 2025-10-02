@@ -9,24 +9,48 @@ import CalendarHeader from './CalendarHeader';
 import Day from './Day';
 import { getCalendarDays } from '../../scripts/dateCalculating';
 
+/**
+ * Calendar component
+ *
+ * Відображає календар з можливістю навігації по місяцях та вибору конкретного дня.
+ * Використовується як презентаційний компонент, стан (currentDate, selectedDate) контролюється з батьківського рівня.
+ *
+ * Props:
+ * @param {Date} currentDate   - перший день місяця, який зараз відображається
+ * @param {Date} selectedDate  - день, який обрано (підсвічений)
+ * @param {function(Date):void} onSelectDate - викликається при виборі конкретного дня
+ * @param {function(Date):void} onMonthChange - викликається при зміні місяця (prev/next/today)
+ * @param {string[]} datesWithTasks - масив дат у форматі 'yyyy-MM-dd', для яких є події
+ *
+ * Використовує допоміжні компоненти:
+ * - CalendarHeader: шапка з назвою місяця та кнопками навігації
+ * - Day: клітинка одного дня
+ */
+
+
 export default function Calendar(props) {
+    // отримуємо дані і колбеки з батька
     const { currentDate, selectedDate, onSelectDate, onMonthChange, datesWithTasks = [] } = props;
     const { colors } = useTheme();
     const { t, i18n } = useTranslation();
     const s = makeStyles(colors);
 
+    // розрахунок розмірів календаря
     const { width, height } = useWindowDimensions();
     const calendarWidth = width * 0.9;
     const cellSize = Math.min(calendarWidth / 7, height / 8);
 
+    // масив усіх днів для відображення (поточний місяць + сусідні)
     const days = getCalendarDays(currentDate);
     const today = new Date();
 
+    // зміна місяця вперед/назад
     const goToMonth = (delta) => {
         const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + delta, 1);
         onMonthChange?.(newDate);
     };
 
+    // локалізація місяця та року
     const locale = i18n.language === 'uk' ? uk : enUS;
     const monthName = format(currentDate, 'LLLL', { locale });
     const year = format(currentDate, 'yyyy');
@@ -36,6 +60,7 @@ export default function Calendar(props) {
 
     return (
         <View style={[s.container, { width: calendarWidth }]}>
+            {/* шапка з назвою місяця і кнопками */}
             <CalendarHeader
                 month={monthName}
                 year={year}
@@ -44,6 +69,7 @@ export default function Calendar(props) {
                 onToday={() => onMonthChange?.(new Date())}
             />
 
+            {/* рядок назв днів тижня */}
             <View style={s.dayNames}>
                 {weekdays.map((d, i) => (
                     <Text key={i} style={[s.dayNameText, { width: cellSize }]}>
@@ -52,13 +78,14 @@ export default function Calendar(props) {
                 ))}
             </View>
 
+            {/* сітка календаря */}
             <View style={s.grid}>
                 {days.map((obj, index) => {
                     const date = obj.date;
                     const isCurrentMonth = obj.current;
                     const isToday = date.toDateString() === today.toDateString();
                     const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString();
-                    const hasTasks = datesWithTasks.includes(format(date, 'yyyy-MM-dd'));
+                    const hasOffenses = datesWithTasks.includes(format(date, 'yyyy-MM-dd'));
 
                     return (
                         <Day
@@ -67,7 +94,7 @@ export default function Calendar(props) {
                             isCurrentMonth={isCurrentMonth}
                             isToday={isToday}
                             selected={isSelected}
-                            hasTasks={hasTasks}
+                            hasOffenses={hasOffenses}
                             cellSize={cellSize}
                             onPress={onSelectDate}
                         />

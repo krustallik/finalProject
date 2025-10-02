@@ -1,3 +1,4 @@
+// App.js
 import 'react-native-gesture-handler';
 import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
@@ -9,10 +10,8 @@ import './src/i18n/i18n';
 
 import DrawerNavigator from './src/navigation/DrawerNavigator';
 import AuthScreen from './src/screens/AuthScreen';
-import {syncPendingOffenses} from "./src/services/sync";
 
 const Stack = createNativeStackNavigator();
-
 
 export default function App() {
     return (
@@ -29,9 +28,9 @@ function WithThemeNavigation() {
 
     return (
         <NavigationContainer theme={navTheme}>
-            <Stack.Navigator screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="Auth" component={AuthScreen} />
+            <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Auth">
                 <Stack.Screen name="Main" component={DrawerNavigator} />
+                <Stack.Screen name="Auth" component={AuthScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );

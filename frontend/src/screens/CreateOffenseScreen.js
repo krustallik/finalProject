@@ -16,14 +16,29 @@ import * as Location from 'expo-location';
 
 import { initDb } from '../db/database';
 import {
-  listOffensesRemoteMine,
-      createRemoteOffense,
-      createLocalOffense,
-    } from '../repositories/offensesRepo';
+    listOffensesRemoteMine,
+    createRemoteOffense,
+    createLocalOffense,
+} from '../repositories/offensesRepo';
 import OffenseForm from '../components/offenses/OffenseForm';
 import { uploadBase64ToCloudinary } from '../services/cloudinary';
 import { isOnline } from '../services/network';
 
+/**
+ * CreateOffenseScreen
+ *
+ * Екран створення порушення:
+ *  - робить фото (камера), бере координати (геолокація),
+ *  - при онлайні вантажить фото у хмару та створює запис на сервері,
+ *  - при офлайні зберігає локально в БД (sqlite).
+ *
+ * State:
+ *  - imageBase64: string|null — знімок у base64 для попереднього перегляду/завантаження
+ *  - coords: {latitude, longitude}|null — координати місця
+ *  - saving: boolean — індикатор збереження
+ *
+ * Примітка: використовує локальний прапор submittingRef, щоб запобігти дабл-клікам.
+ */
 export default function CreateOffenseScreen() {
     const { colors } = useTheme();
     const { t } = useTranslation();
@@ -34,20 +49,15 @@ export default function CreateOffenseScreen() {
     const [coords, setCoords] = useState(null);
     const [saving, setSaving] = useState(false);
 
-    const load = async () => {
-        const rows = await listOffensesRemoteMine();
-        setItems(rows);
-    };
-
+    // ініціалізація БД + перше оновлення
     useEffect(() => {
         (async () => {
             await initDb();
-            await load();
         })();
     }, []);
 
-    useFocusEffect(useCallback(() => { load(); }, []));
 
+    // зробити фото + запросити геолокацію
     const takePhoto = async () => {
         const cam = await ImagePicker.requestCameraPermissionsAsync();
         if (cam.status !== 'granted') {
@@ -70,8 +80,9 @@ export default function CreateOffenseScreen() {
         setCoords({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
     };
 
+    // збереження (онлайн → хмара+сервер, офлайн → локально)
     const handleSave = async ({ description, category, imageBase64 }) => {
-        if (submittingRef.current) return;
+        if (submittingRef.current) return; // анти-дубль
         submittingRef.current = true;
         const created_at = new Date().toISOString();
         setSaving(true);
@@ -80,9 +91,9 @@ export default function CreateOffenseScreen() {
             let doneRemote = false;
 
             if (await isOnline()) {
-
+                // 1) вантажимо фото у Cloudinary
                 const { secure_url, public_id } = await uploadBase64ToCloudinary(imageBase64);
-
+                // 2) створюємо запис на сервері
                 await createRemoteOffense({
                     description,
                     category,
@@ -93,12 +104,13 @@ export default function CreateOffenseScreen() {
                 });
                 doneRemote = true;
             } else {
-                // офлайн одразу — пишемо локально
+                // офлайн: зберігаємо локально
                 await createLocalOffense({ description, category, imageBase64, createdAt: created_at, coords });
             }
 
             Alert.alert('OK', doneRemote ? 'Фото завантажено у хмару.' : 'Збережено локально (офлайн).');
         } catch (e) {
+            // fallback: якщо сервер недоступний — дублюємо локально
             try {
                 await createLocalOffense({ description, category, imageBase64, createdAt: created_at, coords });
                 Alert.alert('OK', 'Сервер недоступний. Збережено локально.');
@@ -110,10 +122,8 @@ export default function CreateOffenseScreen() {
             submittingRef.current = false;
             setImageBase64(null);
             setCoords(null);
-            await load();
         }
     };
-
 
     return (
         <KeyboardAvoidingView
@@ -124,6 +134,7 @@ export default function CreateOffenseScreen() {
             <ScrollView contentContainerStyle={s.scrollContent} keyboardShouldPersistTaps="handled">
                 <Text style={s.title}>{t('screens.createTitle')}</Text>
 
+                {/* форма створення порушення */}
                 <OffenseForm
                     imageBase64={imageBase64}
                     onChangePhoto={saving ? undefined : takePhoto}
@@ -131,11 +142,9 @@ export default function CreateOffenseScreen() {
                     loading={saving}
                     onCancel={() => setImageBase64(null)}
                 />
-
-
-
             </ScrollView>
 
+            {/* напівпрозорий оверлей під час збереження */}
             {saving && (
                 <View style={s.overlay}>
                     <ActivityIndicator size="large" />

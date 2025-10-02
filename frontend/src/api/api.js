@@ -1,7 +1,6 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// заміни на свій IP у локальній мережі
 const BASE_URL = 'http://192.168.0.239:3000';
 
 export const api = axios.create({

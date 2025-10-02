@@ -4,6 +4,7 @@ import {TYPES} from "../types";
 import {UserRepository} from "../repositories/user.repository";
 import {UserDocument} from "../models/user.schema";
 import {ConflictError, NotFoundError} from "../errors/app-err";
+import bcrypt from "bcrypt";
 
 @injectable()
 export class UserService {
@@ -22,18 +23,6 @@ export class UserService {
         const user = await this.userRepository.findById(id)
         if (!user) throw new NotFoundError(`User with id "${id}" not found`);
         return toUserResponseDto(user, true);
-    }
-
-    async create(dto: RegisterDto) {
-        try {
-            const user = await this.userRepository.create(dto);
-            return toUserResponseDto(user, true);
-        } catch (err: any) {
-            if (err.code === 11000 && err.keyPattern?.email) {
-                throw new ConflictError(`Email "${dto.email}" already exists`)
-            }
-            throw err;
-        }
     }
 
     async updateById(id: string, dto: UpdateUserDto) {
@@ -58,7 +47,6 @@ export class UserService {
 
 function toUserResponseDto(user: UserDocument, includeEmail = false): UserResponseDto {
     const dto = {
-        //id: user._id.toHexString(),//замість UserSchema.virtual('id').get
         id: user.id,
         name: user.name,
     } as UserResponseDto;

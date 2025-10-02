@@ -33,7 +33,7 @@ export default function OffenseItem({ item, onDelete }) {
 
             {!!item.category && (
                 <Text style={s.category}>
-                    Категорія: {item.category}
+                    {t('calendar.category')}: {t(`offense.categories.${item.category}`, item.category)}
                 </Text>
             )}
 

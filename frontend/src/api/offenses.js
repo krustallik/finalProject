@@ -1,6 +1,6 @@
 import { api } from './api';
 
-// створити правопорушення
+
 export async function postOffense(payload) {
     const { data } = await api.post('/offenses', {
         description: payload.description,

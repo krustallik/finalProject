@@ -4,10 +4,32 @@ import { View, Text, StyleSheet } from 'react-native';
 import { useNavigation, useTheme, useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { format, startOfMonth } from 'date-fns';
-import { listOffensesRemoteAll, deleteOffenseRemoteById } from '../repositories/offensesRepo';
+import { listOffensesRemoteAll } from '../repositories/offensesRepo';
 import Calendar from '../components/calendar/Calendar';
 
+/**
+ * CalendarScreen
+ *
+ * Контейнерний екран календаря.
+ * Відповідає за завантаження даних (offenses) з репозиторію,
+ * формування дат з порушеннями та навігацію до екрану "DayOffenses".
+ *
+ * State:
+ * - currentDate: Date — початок поточного місяця
+ * - selectedDate: Date — обраний день
+ * - allOffenses: [] — масив всіх порушень
+ *
+ * Використовує:
+ * - <Calendar> як презентаційний календар
+ *
+ * Батьківська логіка:
+ * - onSelectDate → змінює selectedDate і виконує navigation.navigate
+ * - onMonthChange → оновлює currentDate
+ */
+
+
 export default function CalendarScreen() {
+    // кольори теми та переклади
     const { colors } = useTheme();
     const { t } = useTranslation();
     const s = makeStyles(colors);
@@ -17,19 +39,20 @@ export default function CalendarScreen() {
     const [selectedDate, setSelectedDate] = useState(() => new Date());
     const [allOffenses, setAllOffenses] = useState([]);
 
+    // завантаження порушень з дб
     const load = useCallback(async () => {
         const rows = await listOffensesRemoteAll();
         setAllOffenses(rows || []);
     }, []);
 
-    // 1) первинне завантаження
     useEffect(() => { load(); }, [load]);
 
-    // 2) автооновлення КОЖНОГО разу, коли заходиш на календар (фокус табу/стеку)
     useFocusEffect(useCallback(() => { load(); }, [load]));
 
+    // форматування дати у ISO
     const fmt = (d) => format(d, 'yyyy-MM-dd');
 
+    // вибірка дат, де є Порушення
     const datesWithOffenses = useMemo(() => {
         const set = new Set();
         for (const it of allOffenses) {
@@ -39,19 +62,12 @@ export default function CalendarScreen() {
         return Array.from(set);
     }, [allOffenses]);
 
-    const dayItems = useMemo(() => {
-        const key = fmt(selectedDate);
-        return (allOffenses || []).filter((it) => {
-            if (!it.createdAt) return false;
-            return fmt(new Date(it.createdAt)) === key;
-        });
-    }, [allOffenses, selectedDate]);
-
-
     return (
         <View style={s.container}>
+            {/* заголовок */}
             <Text style={s.title}>{t('screens.calendarTitle')}</Text>
 
+            {/* календар */}
             <Calendar
                 currentDate={currentDate}
                 selectedDate={selectedDate}

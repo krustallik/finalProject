@@ -31,6 +31,8 @@ const resources = {
                 cameraDeniedMessage: 'Надай дозвіл у налаштуваннях.',
                 descriptionRequiredTitle: 'Опис обовʼязковий',
                 descriptionRequiredMessage: 'Вкажи короткий опис правопорушення.',
+                authRequiredTitle: 'Потрібна авторизація',
+                authRequiredMessage: 'Увійдіть у свій акаунт, щоб створити правопорушення.',
             },
             list: { empty: 'Немає локальних записів. Додай перший.' },
 
@@ -46,12 +48,14 @@ const resources = {
                 haveAccount: 'Вже є акаунт? Увійти',
                 logoutBtn: 'Вийти',
                 welcome: 'Ласкаво просимо!',
+                guestLogin : 'Увійти як гість',
             },
 
             calendar: {
                 today: 'Сьогодні',
                 weekdaysShort: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'],
                 monthYear: '{{month}} {{year}} р.',
+                category : "Категорія",
             },
 
             tasks: {
@@ -91,6 +95,8 @@ const resources = {
                 cameraDeniedMessage: 'Please allow camera access in settings.',
                 descriptionRequiredTitle: 'Description is required',
                 descriptionRequiredMessage: 'Please enter a short description of the offense.',
+                authRequiredTitle: "Authorization required",
+                authRequiredMessage: "Please log in to your account to create an offense.",
             },
             list: { empty: 'No local records yet. Add the first one.' },
 
@@ -106,12 +112,14 @@ const resources = {
                 haveAccount: 'Already have an account? Sign in',
                 logoutBtn: 'Log Out',
                 welcome: 'Welcome!',
+                guestLogin: "Continue as Guest"
             },
 
             calendar: {
                 today: 'Today',
                 weekdaysShort: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                 monthYear: '{{month}} {{year}}',
+                category : "Category",
             },
 
             tasks: {

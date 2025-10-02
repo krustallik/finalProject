@@ -10,7 +10,6 @@ export async function initDb() {
     const db = await getDb();
     await db.execAsync('PRAGMA journal_mode = WAL;');
 
-    // Створення таблиці, якщо її ще немає (вже з колонками гео)
     await db.execAsync(`
         CREATE TABLE IF NOT EXISTS offenses (
                                                 id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -5,24 +5,46 @@ import { useTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '../api/api';
 
+
+/**
+ * AuthScreen
+ *
+ * Екран автентифікації (логін / реєстрація).
+ * Дозволяє користувачеві увійти, створити акаунт або увійти як гість.
+ *
+ * State:
+ * - mode: "login" | "register"
+ * - email, password, name: введені дані
+ * - loading: індикатор процесу
+ *
+ * Поведінка:
+ * - handleSubmit: виконує запит логіну або реєстрації → зберігає токен у AsyncStorage
+ * - switchMode: перемикає між режимами
+ * - handleGuest: очищає дані та входить як гість
+ */
+
 export default function AuthScreen() {
     const { colors } = useTheme();
     const { t } = useTranslation();
     const navigation = useNavigation();
 
+    // локальний стан екрану
     const [mode, setMode] = useState('login');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
     const [loading, setLoading] = useState(false);
 
+    // перемикання режиму логін/реєстрація
     const switchMode = () => {
         setMode(mode === 'login' ? 'register' : 'login');
         setEmail(''); setPassword(''); setName('');
     };
 
+    // відправка даних на сервер
     const handleSubmit = async () => {
         try {
+            // базова валідація
             if (!email.trim() || !password.trim()) {
                 Alert.alert('Error', 'Email and password are required');
                 return;
@@ -31,8 +53,10 @@ export default function AuthScreen() {
 
             let res;
             if (mode === 'login') {
+                // логін
                 res = await api.post('/auth/login', { email: email.trim(), password: password.trim() });
             } else {
+                // реєстрація
                 if (!name.trim()) { Alert.alert('Error', 'Name is required'); return; }
                 res = await api.post('/auth/register', {
                     name: name.trim(),
@@ -41,6 +65,7 @@ export default function AuthScreen() {
                 });
             }
 
+            // зберігаємо токен і користувача
             const { token, user } = res.data || {};
             await AsyncStorage.setItem('token', token || '');
             await AsyncStorage.setItem('user', JSON.stringify(user || {}));
@@ -49,7 +74,8 @@ export default function AuthScreen() {
                 api.defaults.headers.common.Authorization = `Bearer ${token}`;
             }
 
-            navigation.replace('Main'); // твоє кореневе дерево вкладок/дровера
+            // перехід у головний екран
+            navigation.navigate('Main');
         } catch (err) {
             console.warn(err?.response?.data || err.message);
             const msg = err?.response?.data?.message || 'Authentication error';
@@ -59,12 +85,21 @@ export default function AuthScreen() {
         }
     };
 
+    // вхід як гість (очистка токену)
+    const handleGuest = async () => {
+        await AsyncStorage.multiRemove(['token', 'user']);
+        delete api.defaults.headers.common.Authorization;
+        navigation.navigate('Main');
+    };
+
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
+            {/* заголовок */}
             <Text style={[styles.title, { color: colors.text }]}>
                 {mode === 'login' ? t('auth.loginTitle') : t('auth.registerTitle')}
             </Text>
 
+            {/* поле для імені тільки у режимі реєстрації */}
             {mode === 'register' && (
                 <TextInput
                     style={[styles.input, { borderColor: colors.border, color: colors.text }]}
@@ -75,6 +110,7 @@ export default function AuthScreen() {
                 />
             )}
 
+            {/* email */}
             <TextInput
                 style={[styles.input, { borderColor: colors.border, color: colors.text }]}
                 placeholder={t('auth.emailPlaceholder')}
@@ -85,6 +121,7 @@ export default function AuthScreen() {
                 onChangeText={setEmail}
             />
 
+            {/* пароль */}
             <TextInput
                 style={[styles.input, { borderColor: colors.border, color: colors.text }]}
                 placeholder={t('auth.passwordPlaceholder')}
@@ -94,6 +131,7 @@ export default function AuthScreen() {
                 onChangeText={setPassword}
             />
 
+            {/* кнопка логін / реєстрація */}
             <TouchableOpacity
                 style={[styles.button, { backgroundColor: colors.primary, opacity: loading ? 0.6 : 1 }]}
                 onPress={handleSubmit}
@@ -104,9 +142,17 @@ export default function AuthScreen() {
                 </Text>
             </TouchableOpacity>
 
+            {/* перемикання режимів */}
             <TouchableOpacity onPress={switchMode} disabled={loading}>
                 <Text style={[styles.switchText, { color: colors.primary }]}>
                     {mode === 'login' ? t('auth.noAccount') : t('auth.haveAccount')}
+                </Text>
+            </TouchableOpacity>
+
+            {/* вхід як гість */}
+            <TouchableOpacity onPress={handleGuest} disabled={loading} style={{ marginTop: 20 }}>
+                <Text style={[styles.switchText, { color: colors.primary }]}>
+                    {t('auth.guestLogin', 'Увійти як гість')}
                 </Text>
             </TouchableOpacity>
         </View>
