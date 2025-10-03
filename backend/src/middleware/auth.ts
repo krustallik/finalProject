@@ -4,6 +4,16 @@ import { AppError } from '../errors/app-err';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_change_me';
 
+/**
+ * authGuard
+ *
+ * Middleware для захисту маршрутів за допомогою JWT.
+ *
+ *
+ * @param {Context} ctx - Koa контекст запиту
+ * @param {Next} next - наступний middleware у ланцюжку
+ * @throws {AppError} 401, якщо токен відсутній або невалідний
+ */
 export async function authGuard(ctx: Context, next: Next) {
     const hdr = ctx.headers.authorization || '';
     const token = hdr.startsWith('Bearer ') ? hdr.slice(7) : null;
@@ -12,7 +22,8 @@ export async function authGuard(ctx: Context, next: Next) {
 
     try {
         const payload = jwt.verify(token, JWT_SECRET) as { sub: string };
-        ctx.state.userId = payload.sub; // <-- тут зберігаємо id юзера
+        // зберігаємо id юзера у state → доступно далі у контролерах
+        ctx.state.userId = payload.sub;
         await next();
     } catch {
         throw new AppError('Unauthorized', 401);
