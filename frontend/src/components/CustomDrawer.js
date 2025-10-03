@@ -65,6 +65,7 @@ export default function CustomDrawer(props) {
             delete api.defaults.headers.common.Authorization;
             setIsAuthed(false);
         } finally {
+            handleGoAuth();
             props.navigation.closeDrawer();
         }
     };

@@ -45,22 +45,11 @@ export default function OffenseItem({ item, onDelete }) {
                 </Text>
             )}
 
-            {/* (Ймовірно зайва умова з userName — залишено як є) */}
-            {item.userName && (
-                <Text style={s.date}>{new Date(item.createdAt || item.createdAt).toLocaleString()}</Text>
-            )}
 
             {/* Дата створення */}
             <Text style={s.date}>
                 {new Date(item.createdAt).toLocaleString()}
             </Text>
-
-            {/* Координати, якщо відомі */}
-            {(item.latitude != null && item.longitude != null) && (
-                <Text style={s.coords}>
-                    {item.latitude.toFixed(5)}, {item.longitude.toFixed(5)}
-                </Text>
-            )}
         </View>
     );
 }

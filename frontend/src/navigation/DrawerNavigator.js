@@ -32,14 +32,6 @@ export default function DrawerNavigator() {
             if (await isOnline()) await syncPendingOffenses();
         })();
 
-        const timer = setInterval(async () => {
-            if (await isOnline()) {
-                console.log('⏰ Автосинк…');
-                await syncPendingOffenses();
-            }
-        }, 60_000);
-
-        return () => clearInterval(timer);
     }, []);
 
     return (
