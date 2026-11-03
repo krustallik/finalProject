@@ -30,8 +30,27 @@ export async function postOffense(payload) {
  * @returns {Promise<Object[]>} масив правопорушень
  */
 export async function getAllOffenses() {
-    const { data } = await api.get('/offenses/all');
-    return data;
+    const items = [];
+    const seenCursors = new Set();
+    let cursor;
+
+    do {
+        const { data } = await api.get('/offenses/all', {
+            params: { limit: 100, ...(cursor ? { cursor } : {}) },
+        });
+        if (!data || !Array.isArray(data.items) || (data.nextCursor != null && typeof data.nextCursor !== 'string')) {
+            throw new Error('Unexpected paginated report response.');
+        }
+
+        items.push(...data.items);
+        cursor = data.nextCursor || undefined;
+        if (cursor) {
+            if (seenCursors.has(cursor)) throw new Error('Report pagination cursor did not advance.');
+            seenCursors.add(cursor);
+        }
+    } while (cursor);
+
+    return items;
 }
 
 /**

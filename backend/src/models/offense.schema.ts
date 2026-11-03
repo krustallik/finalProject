@@ -70,6 +70,7 @@ OffenseSchema.virtual('id').get(function () {
  * - відсортувати за датою створення (спаданням)
  */
 OffenseSchema.index({ user: 1, createdAt: -1 });
+OffenseSchema.index({ createdAt: -1, _id: -1 });
 
 /**
  * Модель OffenseModel

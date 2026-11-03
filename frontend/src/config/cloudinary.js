@@ -7,9 +7,9 @@
  * - folder: папка, куди потрапляють файли
  */
 export const CLOUDINARY = {
-    cloudName: "dctwua7xj",
-    uploadPreset: "citizen_offenses",
-    folder: "citizen/offenses",
+    cloudName: process.env.EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME || "",
+    uploadPreset: process.env.EXPO_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "",
+    folder: process.env.EXPO_PUBLIC_CLOUDINARY_FOLDER || "citizen/offenses",
 };
 
 /**

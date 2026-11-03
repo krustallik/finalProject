@@ -1,5 +1,7 @@
 import { injectable } from 'inversify';
+import { Types } from 'mongoose';
 import { OffenseDocument, OffenseModel } from '../models/offense.schema';
+import type { PublicOffenseCursor } from '../utils/offense-pagination';
 
 /**
  * OffenseRepository
@@ -53,16 +55,30 @@ export class OffenseRepository {
      * @param id - ідентифікатор
      * @param patch - дані для оновлення
      */
-    async updateById(id: string, patch: Partial<OffenseDocument>) {
-        return OffenseModel.findByIdAndUpdate(id, patch, { new: true, projection: { __v: 0 } }).exec();
+    async updateByIdForUser(id: string, userId: string, patch: Partial<OffenseDocument>) {
+        return OffenseModel.findOneAndUpdate(
+            { _id: id, user: userId },
+            patch,
+            { new: true, projection: { __v: 0 } }
+        ).exec();
     }
 
     /**
      * Повертає всі правопорушення
      */
-    async findAll() {
-        return OffenseModel.find({}, { __v: 0 })
-            .sort({ createdAt: -1 })
+    async findAll(limit: number, cursor?: PublicOffenseCursor) {
+        const filter = cursor
+            ? {
+                $or: [
+                    { createdAt: { $lt: cursor.createdAt } },
+                    { createdAt: cursor.createdAt, _id: { $lt: new Types.ObjectId(cursor.id) } },
+                ],
+            }
+            : {};
+
+        return OffenseModel.find(filter, { __v: 0 })
+            .sort({ createdAt: -1, _id: -1 })
+            .limit(limit)
             .exec();
     }
 }

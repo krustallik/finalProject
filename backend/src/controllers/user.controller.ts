@@ -6,7 +6,7 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "../types";
 import { UserService } from "../services/user.service";
 import { formatValidationErrors } from "../errors/format";
-import { ValidationError } from "../errors/app-err";
+import { NotFoundError, ValidationError } from "../errors/app-err";
 
 /**
  * UserController
@@ -38,6 +38,7 @@ export class UserController {
      */
     async findOne(ctx: Context) {
         const id = ctx.params.id;
+        if (id !== ctx.state.userId) throw new NotFoundError('User not found');
         ctx.body = await this.userService.findById(id);
     }
 
@@ -51,12 +52,13 @@ export class UserController {
         const id = ctx.params.id;
         const dto = plainToInstance(UpdateUserDto, ctx.request.body);
 
-        const errors = await validate(dto, { skipMissingProperties: true });
+        const errors = await validate(dto, { skipMissingProperties: true, whitelist: true, forbidNonWhitelisted: true });
         if (errors.length) {
             throw new ValidationError("Validation failed", formatValidationErrors(errors));
         }
 
-        ctx.body = await this.userService.updateById(id, dto);
+        if (id !== ctx.state.userId) throw new NotFoundError('User not found');
+        ctx.body = await this.userService.updateById(id, { name: dto.name, email: dto.email });
     }
 
     /**
@@ -65,6 +67,7 @@ export class UserController {
      */
     async delete(ctx: Context) {
         const id = ctx.params.id;
+        if (id !== ctx.state.userId) throw new NotFoundError('User not found');
         await this.userService.deleteById(id);
         ctx.status = 204;
     }

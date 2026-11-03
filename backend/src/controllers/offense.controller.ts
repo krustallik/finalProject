@@ -7,6 +7,7 @@ import { plainToInstance } from 'class-transformer';
 import { CreateOffenseDto, UpdateOffenseDto } from '../dtos/offense.dto';
 import { ValidationError } from '../errors/app-err';
 import { formatValidationErrors } from '../errors/format';
+import { parsePublicOffenseListQuery } from '../utils/offense-pagination';
 
 /**
  * OffenseController
@@ -54,7 +55,8 @@ export class OffenseController {
      * @route GET /offenses/all
      */
     async all(ctx: Context) {
-        ctx.body = await this.service.listAll();
+        const { limit, cursor } = parsePublicOffenseListQuery(ctx.query.limit, ctx.query.cursor);
+        ctx.body = await this.service.listAll({ limit, cursor });
     }
 
     /**
@@ -65,7 +67,11 @@ export class OffenseController {
      */
     async update(ctx: Context) {
         const dto = plainToInstance(UpdateOffenseDto, ctx.request.body);
-        const errors = await validate(dto, { skipMissingProperties: true });
+        const errors = await validate(dto, {
+            skipMissingProperties: true,
+            whitelist: true,
+            forbidNonWhitelisted: true,
+        });
         if (errors.length) throw new ValidationError('Validation failed', formatValidationErrors(errors));
 
         const userId = ctx.state.userId as string;

@@ -53,3 +53,4 @@ export class OffenseResponseDto {
     longitude?: number;
     createdAt!: string;
 }
+export type PublicOffenseResponseDto = Omit<OffenseResponseDto, 'userId' | 'photoUrl' | 'photoId'>;

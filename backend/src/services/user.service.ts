@@ -52,7 +52,7 @@ export class UserService {
         try {
             const user = await this.userRepository.update(id, dto);
             if (!user) throw new NotFoundError(`User with id "${id}" not found`);
-            return user;
+            return toUserResponseDto(user, true);
         } catch (err: any) {
             if (err.code === 11000 && err.keyPattern?.email) {
                 throw new ConflictError(`Email "${dto.email}" already exists`);

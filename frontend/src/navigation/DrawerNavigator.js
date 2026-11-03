@@ -4,10 +4,12 @@ import Tabs from './Tabs';
 import ProfileScreen from '../screens/ProfileScreen';
 import CustomDrawer from '../components/CustomDrawer';
 import { useTranslation } from 'react-i18next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { initDb } from '../db/database';
 import { isOnline } from '../services/network';
 import { syncPendingOffenses } from '../services/sync';
+import { DEMO_MODE } from '../config/demo';
 
 const Drawer = createDrawerNavigator();
 
@@ -29,7 +31,11 @@ export default function DrawerNavigator() {
     React.useEffect(() => {
         (async () => {
             await initDb();
-            if (await isOnline()) await syncPendingOffenses();
+            const token = await AsyncStorage.getItem('token');
+            const rawUser = await AsyncStorage.getItem('user');
+            if (!token || !rawUser) return;
+            const user = JSON.parse(rawUser);
+            if (!DEMO_MODE && user?.id && await isOnline()) await syncPendingOffenses(user.id);
         })();
 
     }, []);

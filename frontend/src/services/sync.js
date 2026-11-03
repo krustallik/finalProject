@@ -1,6 +1,7 @@
 import { uploadBase64ToCloudinary } from './cloudinary';
 import { listPendingLocal, deleteLocalById, createRemoteOffense } from '../repositories/offensesRepo';
 import { isOnline } from './network';
+import { DEMO_MODE } from '../config/demo';
 
 /**
  * Синхронізує всі локальні правопорушення (offline-збережені) з сервером.
@@ -9,10 +10,11 @@ import { isOnline } from './network';
  * @returns {Promise<void>}
  */
 
-export async function syncPendingOffenses() {
-    if (!(await isOnline())) return; // якщо офлайн → нічого не робимо
+export async function syncPendingOffenses(accountId) {
+    if (DEMO_MODE) return;
+    if (!accountId || !(await isOnline())) return;
 
-    const pending = await listPendingLocal();
+    const pending = await listPendingLocal(accountId);
     for (const it of pending) {
         try {
             // 1. Завантаження фото у Cloudinary

@@ -11,7 +11,6 @@ const router = new Router({ prefix: '/users' });
 const controller = container.get<UserController>(TYPES.UserController);
 router.use(requireAuth); // запити нижче – лише з валідним JWT
 
-router.get('/', ctx => controller.findAll(ctx));
 router.get('/:id', validateParams(IdParamDto), ctx => controller.findOne(ctx));
 router.patch('/:id', validateParams(IdParamDto), ctx => controller.update(ctx));
 router.delete('/:id', validateParams(IdParamDto), ctx => controller.delete(ctx));

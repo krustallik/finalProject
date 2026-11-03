@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
+import { MONGODB_URI } from './config';
 
 export async function connectToDatabase() {
     try {
-        await mongoose.connect('mongodb://localhost:27017/backend_db_2');
+        await mongoose.connect(MONGODB_URI);
         console.log('🟢 Connected to MongoDB successful')
     }catch (error){
         console.error('🔴 MongoDB connection error: ', error);

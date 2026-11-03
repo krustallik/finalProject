@@ -1,12 +1,11 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../types';
 import { UserRepository } from '../repositories/user.repository';
-import { ConflictError, NotFoundError, AppError } from '../errors/app-err';
+import { ConflictError, AppError } from '../errors/app-err';
 import { RegisterDto, LoginDto } from '../dtos/user.dto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_change_me';
+import { JWT_SECRET } from '../config';
 
 /**
  * AuthService
@@ -55,7 +54,7 @@ export class AuthService {
      */
     async login(dto: LoginDto) {
         const user = await this.repo.findByEmail(dto.email);
-        if (!user) throw new NotFoundError(`User with email "${dto.email}" not found`);
+        if (!user) throw new AppError('Invalid credentials', 401);
 
         // Перевірка паролю
         const ok = await bcrypt.compare(dto.password, user.passwordHash);

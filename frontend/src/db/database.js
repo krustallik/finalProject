@@ -28,9 +28,15 @@ export async function initDb() {
                                                 image_base64 TEXT,
                                                 latitude REAL,
                                                 longitude REAL,
-                                                created_at TEXT NOT NULL
+                                                created_at TEXT NOT NULL,
+                                                account_id TEXT
         );
     `);
+
+    const columns = await db.getAllAsync('PRAGMA table_info(offenses)');
+    if (!columns.some(column => column.name === 'account_id')) {
+        await db.execAsync('ALTER TABLE offenses ADD COLUMN account_id TEXT;');
+    }
 
 }
 

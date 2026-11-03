@@ -63,10 +63,10 @@ export async function deleteOffenseRemoteById(id) {
  * @param {string} [args.createdAt]     ISO-час створення (дефолт: now)
  * @param {{latitude?:number, longitude?:number}} [args.coords]
  */
-export async function createLocalOffense({ description, category, imageBase64, createdAt, coords }) {
+export async function createLocalOffense({ description, category, imageBase64, createdAt, coords, accountId }) {
     await run(
-        `INSERT INTO offenses (description, category, image_base64, latitude, longitude, created_at)
-         VALUES (?,?,?,?,?,?)`,
+        `INSERT INTO offenses (description, category, image_base64, latitude, longitude, created_at, account_id)
+         VALUES (?,?,?,?,?,?,?)`,
         [
             description.trim(),
             (category || '').trim(),
@@ -74,6 +74,7 @@ export async function createLocalOffense({ description, category, imageBase64, c
             coords?.latitude ?? null,
             coords?.longitude ?? null,
             createdAt || new Date().toISOString(),
+            accountId || null,
         ]
     );
 }
@@ -83,11 +84,11 @@ export async function createLocalOffense({ description, category, imageBase64, c
  * (фільтр по image_base64 != null/empty).
  * Відсортовано за created_at ASC (старіші — першими).
  */
-export async function listPendingLocal() {
+export async function listPendingLocal(accountId) {
+    if (!accountId) return [];
     return await getAll(
-        `SELECT * FROM offenses
-         WHERE image_base64 IS NOT NULL AND image_base64 != ''
-         ORDER BY created_at ASC`
+        'SELECT * FROM offenses WHERE account_id = ? AND image_base64 IS NOT NULL AND image_base64 != ? ORDER BY created_at ASC',
+        [accountId, '']
     );
 }
 

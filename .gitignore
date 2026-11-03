@@ -3,3 +3,8 @@ node_modules/
 .expo/
 .expo-shared/
 .DS_Store
+.env
+.env.*
+!.env.example
+backend/dist/
+*.log

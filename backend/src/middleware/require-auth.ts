@@ -1,7 +1,6 @@
 import { Context, Next } from 'koa';
 import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_change_me';
+import { JWT_SECRET } from '../config';
 
 /**
  * requireAuth
@@ -22,12 +21,15 @@ export async function requireAuth(ctx: Context, next: Next) {
         return;
     }
 
+    let payload: { sub: string };
     try {
-        const payload = jwt.verify(token, JWT_SECRET) as { sub: string };
-        ctx.state.userId = payload.sub; // збереження id юзера
-        await next();
+        payload = jwt.verify(token, JWT_SECRET) as { sub: string };
     } catch {
         ctx.status = 401;
         ctx.body = { message: 'Unauthorized' };
+        return;
     }
+
+    ctx.state.userId = payload.sub; // збереження id юзера
+    await next();
 }

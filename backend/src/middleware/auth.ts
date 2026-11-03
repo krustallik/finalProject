@@ -1,8 +1,7 @@
 import { Context, Next } from 'koa';
 import jwt from 'jsonwebtoken';
 import { AppError } from '../errors/app-err';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_change_me';
+import { JWT_SECRET } from '../config';
 
 /**
  * authGuard
@@ -20,12 +19,14 @@ export async function authGuard(ctx: Context, next: Next) {
 
     if (!token) throw new AppError('Unauthorized', 401);
 
+    let payload: { sub: string };
     try {
-        const payload = jwt.verify(token, JWT_SECRET) as { sub: string };
-        // зберігаємо id юзера у state → доступно далі у контролерах
-        ctx.state.userId = payload.sub;
-        await next();
+        payload = jwt.verify(token, JWT_SECRET) as { sub: string };
     } catch {
         throw new AppError('Unauthorized', 401);
     }
+
+    // Keep downstream route errors intact; only JWT verification is translated to 401.
+    ctx.state.userId = payload.sub;
+    await next();
 }

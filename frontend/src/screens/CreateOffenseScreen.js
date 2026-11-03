@@ -22,6 +22,8 @@ import {
 import OffenseForm from '../components/offenses/OffenseForm';
 import { uploadBase64ToCloudinary } from '../services/cloudinary';
 import { isOnline } from '../services/network';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { DEMO_MODE } from '../config/demo';
 
 /**
  * CreateOffenseScreen
@@ -58,6 +60,7 @@ export default function CreateOffenseScreen() {
 
     // зробити фото + запросити геолокацію
     const takePhoto = async () => {
+        if (DEMO_MODE) return;
         const cam = await ImagePicker.requestCameraPermissionsAsync();
         if (cam.status !== 'granted') {
             Alert.alert(t('alerts.cameraDeniedTitle'), t('alerts.cameraDeniedMessage'));
@@ -81,12 +84,20 @@ export default function CreateOffenseScreen() {
 
     // збереження (онлайн → хмара+сервер, офлайн → локально)
     const handleSave = async ({ description, category, imageBase64 }) => {
+        if (DEMO_MODE) return;
         if (submittingRef.current) return; // анти-дубль
         submittingRef.current = true;
         const created_at = new Date().toISOString();
         setSaving(true);
+        let accountId = null;
 
         try {
+            const rawUser = await AsyncStorage.getItem('user');
+            accountId = rawUser ? JSON.parse(rawUser)?.id : null;
+            if (!accountId) {
+                Alert.alert('Sign in required', 'Sign in before creating a report.');
+                return;
+            }
             let doneRemote = false;
 
             if (await isOnline()) {
@@ -104,14 +115,14 @@ export default function CreateOffenseScreen() {
                 doneRemote = true;
             } else {
                 // офлайн: зберігаємо локально
-                await createLocalOffense({ description, category, imageBase64, createdAt: created_at, coords });
+                await createLocalOffense({ description, category, imageBase64, createdAt: created_at, coords, accountId });
             }
 
             Alert.alert('OK', doneRemote ? 'Фото завантажено у хмару.' : 'Збережено локально (офлайн).');
         } catch (e) {
             // fallback: якщо сервер недоступний — дублюємо локально
             try {
-                await createLocalOffense({ description, category, imageBase64, createdAt: created_at, coords });
+                await createLocalOffense({ description, category, imageBase64, createdAt: created_at, coords, accountId });
                 Alert.alert('OK', 'Сервер недоступний. Збережено локально.');
             } catch {
                 Alert.alert('Помилка', 'Не вдалося зберегти запис.');
@@ -134,13 +145,22 @@ export default function CreateOffenseScreen() {
                 <Text style={s.title}>{t('screens.createTitle')}</Text>
 
                 {/* форма створення порушення */}
-                <OffenseForm
-                    imageBase64={imageBase64}
-                    onChangePhoto={saving ? undefined : takePhoto}
-                    onSaved={handleSave}
-                    loading={saving}
-                    onCancel={() => setImageBase64(null)}
-                />
+                {DEMO_MODE ? (
+                    <View style={s.demoNotice}>
+                        <Text style={{ color: colors.text }}>
+                            Demo mode is active. Live reporting, camera, location, and uploads are disabled.
+                            Explore the synthetic seeded reports in the other screens.
+                        </Text>
+                    </View>
+                ) : (
+                    <OffenseForm
+                        imageBase64={imageBase64}
+                        onChangePhoto={saving ? undefined : takePhoto}
+                        onSaved={handleSave}
+                        loading={saving}
+                        onCancel={() => setImageBase64(null)}
+                    />
+                )}
             </ScrollView>
 
             {/* напівпрозорий оверлей під час збереження */}
@@ -156,6 +176,7 @@ export default function CreateOffenseScreen() {
 const makeStyles = (colors) =>
     StyleSheet.create({
         container: { flex: 1, backgroundColor: colors.background },
+        demoNotice: { padding: 16, marginTop: 16, borderRadius: 12, backgroundColor: colors.card },
         scrollContent: { padding: 16, paddingBottom: 32 },
         title: {
             fontSize: 22,
