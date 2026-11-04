@@ -2,15 +2,19 @@
 
 An Expo and React Native app for submitting community reports with a category, photo, and location. Reports can be browsed on a map or by date. The Koa and TypeScript API stores accounts and reports in MongoDB, while SQLite keeps a local queue for reports created offline.
 
-> **Portfolio demo:** `backend/src/scripts/seedDemo.ts` creates clearly labeled synthetic reports in a local MongoDB database. They are fictional examples, not real incidents.
+> **Portfolio demo:** `backend/src/scripts/seedDemo.ts` creates 12 clearly labeled synthetic reports at different map locations in a local MongoDB database. They are fictional examples, not real incidents.
 
 ## Screenshots
 
-Captured from the Android Pixel 8 emulator using Expo Go. The demo database contains four synthetic reports; every example is labeled `DEMO ONLY` and is not a real incident.
+Captured from the Android Pixel 8 emulator using Expo Go. The local demo database contains 12 synthetic reports at different map locations; every example is labeled `DEMO ONLY` and is not a real incident. The creation screen uses a generated example photo and description; no report was submitted for the screenshot.
 
 | Calendar | Synthetic reports for one day |
 | --- | --- |
 | ![Calendar showing dates with synthetic reports](docs/screenshots/demo-calendar.png) | ![Synthetic reports shown in the app](docs/screenshots/demo-reports.png) |
+
+| Map with reports across the city | Create report form preview |
+| --- | --- |
+| ![Map showing synthetic reports at multiple locations](docs/screenshots/demo-map.png) | ![Report creation form with synthetic example details](docs/screenshots/demo-create.png) |
 
 ## Features
 
@@ -18,7 +22,7 @@ Captured from the Android Pixel 8 emulator using Expo Go. The demo database cont
 - Public map and calendar views of reports returned by the API.
 - Report form with category, camera photo, and device location.
 - Local SQLite queue when the API or network is unavailable; queued reports sync when the app starts online.
-- Ukrainian and English text, light and dark themes, and a guest browsing flow.
+- English by default, with Ukrainian as an available language; light and dark themes and guest browsing.
 - User profile reads and protected account routes.
 
 ## Architecture
@@ -107,7 +111,7 @@ npm test
 npm audit
 ```
 
-`npm test` builds the TypeScript API and runs regression checks for bounded report pagination, cursor validation, and rejection of report-owner fields in PATCH requests. The local API returned all four synthetic records, and the Android app rendered the calendar markers and the dated report list in Expo Go.
+`npm test` builds the TypeScript API and runs regression checks for bounded report pagination, cursor validation, and rejection of report-owner fields in PATCH requests. The local API returned all 12 synthetic records, and the Android app rendered the calendar markers, dated report list, map pins, and report form preview in Expo Go.
 
 ## API overview
 

@@ -5,13 +5,11 @@ import i18n from './i18n';
 /**
  * LangCtx
  *
- * Контекст для збереження поточної мови застосунку.
- * Значення за замовчуванням:
- * - lang: 'uk'
- * - setLang: функція-заглушка
+ * Stores the current application language.
+ * English is the default; `setLang` switches between English and Ukrainian.
  */
 export const LangCtx = createContext({
-    lang: 'uk',
+    lang: 'en',
     setLang: () => {},
 });
 
@@ -27,9 +25,9 @@ const STORAGE_KEY = 'app.lang';
  * @param {React.ReactNode} children – внутрішні компоненти, які отримають доступ до LangCtx
  */
 export default function LanguageProvider({ children }) {
-    const [lang, setLangState] = useState('uk'); // стан вибраної мови (за замовчуванням – укр)
+    const [lang, setLangState] = useState('en');
 
-    // При першому запуску відновлюємо вибрану мову з AsyncStorage
+    // Restore the user's saved language on startup.
     useEffect(() => {
         (async () => {
             const saved = await AsyncStorage.getItem(STORAGE_KEY);
@@ -40,7 +38,7 @@ export default function LanguageProvider({ children }) {
         })();
     }, []);
 
-    // Метод зміни мови (оновлює state, i18n та зберігає у AsyncStorage)
+    // Change the language and persist the selection.
     const setLang = async (code) => {
         setLangState(code);
         await i18n.changeLanguage(code);
