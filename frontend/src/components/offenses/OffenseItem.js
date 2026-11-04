@@ -29,11 +29,13 @@ export default function OffenseItem({ item, onDelete }) {
             </View>
 
             {/* Фото порушення (якщо є URL) */}
-            <Image
-                source={{ uri: item.photoUrl }}
-                style={s.image}
-                resizeMode="cover"
-            />
+            {!!item.photoUrl && (
+                <Image
+                    source={{ uri: item.photoUrl }}
+                    style={s.image}
+                    resizeMode="cover"
+                />
+            )}
 
             {/* Опис */}
             <Text style={s.title}>{item.description}</Text>

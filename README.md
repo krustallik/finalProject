@@ -6,7 +6,11 @@ An Expo and React Native app for submitting community reports with a category, p
 
 ## Screenshots
 
-No screenshots are included in this checkpoint. Android bundling is being checked separately; it does not verify that the app renders correctly on an emulator or phone.
+Captured from the Android Pixel 8 emulator using Expo Go. The demo database contains four synthetic reports; every example is labeled `DEMO ONLY` and is not a real incident.
+
+| Calendar | Synthetic reports for one day |
+| --- | --- |
+| ![Calendar showing dates with synthetic reports](docs/screenshots/demo-calendar.png) | ![Synthetic reports shown in the app](docs/screenshots/demo-reports.png) |
 
 ## Features
 
@@ -88,7 +92,7 @@ npm ci
 npx expo start --android
 ```
 
-The default API URL targets the Android Studio emulator. For a physical Android phone during development, use USB with adb reverse tcp:3000 tcp:3000 and http://127.0.0.1:3000. Release builds reject HTTP URLs; non-local deployments must use HTTPS.
+The default API URL targets the Android Studio emulator. Expo loads `.env.local` before `.env`; if both files exist, make sure `EXPO_PUBLIC_API_URL` in `.env.local` targets the same local API. For a physical Android phone during development, use USB with `adb reverse tcp:3000 tcp:3000` and `http://127.0.0.1:3000`. Release builds reject HTTP URLs; non-local deployments must use HTTPS.
 
 Portfolio demo mode is enabled by default and disables live camera/location reporting. It uses only synthetic seeded reports. To opt into live reporting, set EXPO_PUBLIC_DEMO_MODE=false and configure Cloudinary public variables. These identifiers are visible in the app bundle; never put a Cloudinary API secret there. Restrict upload formats, size, destination, and quota before enabling a real account.
 
@@ -103,7 +107,7 @@ npm test
 npm audit
 ```
 
-`npm test` builds the TypeScript API and runs regression checks for bounded report pagination, cursor validation, and rejection of report-owner fields in PATCH requests. The app export and local demo API have also been verified with synthetic reports.
+`npm test` builds the TypeScript API and runs regression checks for bounded report pagination, cursor validation, and rejection of report-owner fields in PATCH requests. The local API returned all four synthetic records, and the Android app rendered the calendar markers and the dated report list in Expo Go.
 
 ## API overview
 
